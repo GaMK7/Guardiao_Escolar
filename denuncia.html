@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registrar denúncia — Guardião Escolar</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+  <main class="pagina" id="conteudo">
+    <a class="voltar" href="index.html">&larr; Voltar</a>
+
+    <h1>Registrar denúncia</h1>
+    <p class="subtitulo">Leva cerca de três minutos. Campos com <span class="obrigatorio">*</span> são obrigatórios.</p>
+
+    <div class="aviso">
+      <strong>Se alguém está em perigo agora, ligue 190.</strong>
+      Este formulário é lido pela escola em horário de expediente.
+    </div>
+
+    <!-- action e method ficam aqui como alternativa sem JavaScript;
+         o js/app.js intercepta o envio e chama POST /api/denuncias -->
+    <form id="form-denuncia" action="/api/denuncias" method="post" novalidate>
+
+      <!-- ---------------------------------------- tipo (RF03) -->
+      <fieldset class="grupo">
+        <legend>O que aconteceu? <span class="obrigatorio">*</span></legend>
+        <div class="chips">
+          <input type="radio" id="tipo-bullying" name="tipo" value="bullying" required>
+          <label for="tipo-bullying">Bullying</label>
+
+          <input type="radio" id="tipo-cyber" name="tipo" value="cyberbullying">
+          <label for="tipo-cyber">Cyberbullying</label>
+
+          <input type="radio" id="tipo-assedio" name="tipo" value="assedio">
+          <label for="tipo-assedio">Assédio</label>
+
+          <input type="radio" id="tipo-ameaca" name="tipo" value="ameaca">
+          <label for="tipo-ameaca">Ameaça</label>
+
+          <input type="radio" id="tipo-agressao" name="tipo" value="agressao_fisica">
+          <label for="tipo-agressao">Agressão física</label>
+
+          <input type="radio" id="tipo-discriminacao" name="tipo" value="discriminacao">
+          <label for="tipo-discriminacao">Discriminação</label>
+
+          <input type="radio" id="tipo-outro" name="tipo" value="outro">
+          <label for="tipo-outro">Outro</label>
+        </div>
+        <span class="ajuda">Se não souber qual escolher, marque "Outro" e explique abaixo.</span>
+      </fieldset>
+
+      <!-- ---------------------------------------- relato (RF04) -->
+      <div class="campo">
+        <label for="descricao">Conte com as suas palavras <span class="obrigatorio">*</span></label>
+        <textarea id="descricao" name="descricao" maxlength="2000" required
+                  placeholder="Não precisa ser perfeito. Escreva o que você lembra: o que aconteceu, quem estava junto, se já aconteceu antes."
+                  data-contador="#contador-descricao"></textarea>
+        <span class="ajuda" id="contador-descricao" aria-live="polite"></span>
+      </div>
+
+      <!-- ---------------------------------------- quando e onde (RF05) -->
+      <div class="duas-colunas">
+        <div class="campo">
+          <label for="data_ocorrencia">Quando aconteceu <span class="obrigatorio">*</span></label>
+          <input type="date" id="data_ocorrencia" name="data_ocorrencia" required>
+        </div>
+        <div class="campo">
+          <label for="local">Onde aconteceu <span class="obrigatorio">*</span></label>
+          <select id="local" name="local" required>
+            <option value="">Escolha um local</option>
+            <option value="sala">Sala de aula</option>
+            <option value="corredor">Corredor</option>
+            <option value="patio">Pátio</option>
+            <option value="quadra">Quadra</option>
+            <option value="banheiro">Banheiro</option>
+            <option value="refeitorio">Refeitório</option>
+            <option value="entrada">Entrada ou saída da escola</option>
+            <option value="internet">Internet ou aplicativo de mensagem</option>
+            <option value="outro">Outro lugar</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ---------------------------------------- vínculo (RF10) -->
+      <div class="campo">
+        <label for="vinculo">Qual é a sua relação com a escola?</label>
+        <select id="vinculo" name="vinculo">
+          <option value="">Prefiro não dizer</option>
+          <option value="aluno">Aluno</option>
+          <option value="professor">Professor</option>
+          <option value="funcionario">Funcionário</option>
+          <option value="responsavel">Responsável por um aluno</option>
+          <option value="outro">Outro</option>
+        </select>
+        <span class="ajuda">Isso ajuda a escola a entender o contexto e não identifica você.</span>
+      </div>
+
+      <!-- ---------------------------------------- identificação (RF02) -->
+      <fieldset class="grupo">
+        <legend>Você quer se identificar?</legend>
+
+        <label class="opcao">
+          <input type="radio" name="identificacao" value="anonima" checked>
+          <span>
+            <strong>Não, prefiro ficar anônimo</strong>
+            <span>A escola não terá como saber quem enviou. Nem nós.</span>
+          </span>
+        </label>
+
+        <label class="opcao">
+          <input type="radio" name="identificacao" value="identificada">
+          <span>
+            <strong>Sim, quero me identificar</strong>
+            <span>Só a equipe autorizada verá o seu nome.</span>
+          </span>
+        </label>
+      </fieldset>
+
+      <!-- campos visíveis apenas quando a pessoa escolhe se identificar -->
+      <div class="campo" id="dados-contato" hidden>
+        <label for="nome">Seu nome</label>
+        <input type="text" id="nome" name="nome" autocomplete="name">
+        <label for="contato" style="margin-top:12px">E-mail ou telefone</label>
+        <input type="text" id="contato" name="contato">
+      </div>
+
+      <div class="aviso aviso--neutro">
+        Guardamos só o necessário para tratar a denúncia, conforme a LGPD. Denúncias anônimas não registram nome, contato nem endereço de internet.
+      </div>
+
+      <span class="erro" id="erro-envio" role="alert" aria-live="assertive"></span>
+      <button type="submit" class="botao">Enviar denúncia</button>
+    </form>
+
+    <footer class="rodape">
+      <p>Em caso de perigo imediato: 190 (polícia) ou 100 (direitos humanos).</p>
+    </footer>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script>
+    // mostra os campos de contato só quando a denúncia é identificada
+    var bloco = document.getElementById('dados-contato');
+    document.querySelectorAll('input[name="identificacao"]').forEach(function (opcao) {
+      opcao.addEventListener('change', function () {
+        bloco.hidden = opcao.value !== 'identificada';
+      });
+    });
+  </script>
+</body>
+</html>

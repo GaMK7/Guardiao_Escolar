@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acompanhar denúncia — Guardião Escolar</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+  <main class="pagina" id="conteudo">
+    <a class="voltar" href="index.html">&larr; Voltar</a>
+
+    <h1>Acompanhar denúncia</h1>
+    <p class="subtitulo">Digite o código que você recebeu quando enviou a denúncia.</p>
+
+    <!-- POST /api/denuncias/consulta  ->  devolve a página de andamento -->
+    <form action="andamento.html" method="get">
+      <div class="campo">
+        <label for="codigo">Código de acompanhamento</label>
+        <input type="text" id="codigo" name="codigo" required
+               maxlength="9" autocomplete="off" spellcheck="false"
+               placeholder="0000-0000"
+               style="text-align:center;font-size:22px;letter-spacing:.14em"
+               data-formato-codigo>
+        <span class="erro" id="erro-codigo" role="alert"></span>
+      </div>
+
+      <button type="submit" class="botao">Ver andamento</button>
+    </form>
+
+    <div class="aviso aviso--neutro" style="margin-top:24px">
+      <strong>Perdeu o código?</strong>
+      Ele não pode ser recuperado — nem pela escola, nem por nós. É isso que garante o anonimato. Você pode registrar uma nova denúncia contando o mesmo caso.
+    </div>
+
+    <a class="link-discreto" href="denuncia.html">Registrar uma nova denúncia</a>
+
+    <footer class="rodape">
+      <p>Em caso de perigo imediato: 190 (polícia) ou 100 (direitos humanos).</p>
+    </footer>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
