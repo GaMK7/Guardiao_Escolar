@@ -1,0 +1,83 @@
+.app-screen {
+   min-height: 100dvh;
+   display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+}
+
+.button#register {
+   background: #1C5244;
+   color: #fff;
+}
+
+.button#follow {
+   border: 2px solid #1C5244;
+   color: #1C5244;
+   background: #ffffffd9;
+   backdrop-filter: blur(8px);
+   -webkit-backdrop-filter: blur(8px);
+}
+
+.button:active {
+   transform: scale(1.05);
+}
+
+.info-link {
+   color: #202020;
+   display: block;
+   text-align: center;
+   font-size: 0.75rem;
+   font-weight: 600;
+   text-decoration: underline;
+}
+
+.footer {
+   background: #FBEFEB;
+   padding: 1rem;
+   border-radius: 0 10px 10px 0px;
+   position: relative;
+}
+
+.footer::before {
+   content: "";
+   position: absolute;
+   width: 2px;
+   height: 100%;
+   background: #7A2C18;
+   left: 0px;
+   top: 0px;
+}
+
+.footer h1 {
+   color: #7A2C18;
+   font-size: 1rem;
+   margin-bottom: 0.625rem;
+}
+
+.footer p {
+   font-size: 0.875rem;
+   color: #7A2C18;
+}
+
+@media screen and (min-width: 1024px) {
+
+   .app-screen {
+      padding: 20px 24px;
+   }
+
+   .info-link {
+      display: inline-block;
+      text-align: start;
+      font-size: 1rem;
+   }
+
+   .button#follow {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+   }
+
+   .footer {
+      place-self: center;
+   }
+}

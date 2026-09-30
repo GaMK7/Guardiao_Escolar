@@ -1,0 +1,136 @@
+:root {
+   --green: #1C5244;
+   --white: #ffffffd9;
+   --gray: #202020;
+   --gray-2: #404040;
+   --red: #7A2C18;
+}
+
+.app-screen {
+   padding: 24px 20px;
+   box-sizing: border-box;
+}
+
+.header {
+   display: flex;
+   justify-content: space-between;
+   margin-bottom: 2rem;
+}
+
+.header-login a {
+   color: var(--green);
+   font-size: 0.875rem;
+   font-weight: 600;
+}
+
+.header-logo-container {
+   display: flex;
+   align-items: center;
+   gap: 0.625rem;
+}
+
+.header-icon {
+   width: 24px;
+   height: 24px;
+}
+
+.header h1 {
+   font-size: 1rem;
+}
+
+.main-content {
+   margin-bottom: auto;
+}
+
+.main-content h1 {
+   font-size: 1.5rem;
+   margin-bottom: 1rem;
+}
+
+.main-content p {
+   font-size: 0.875rem;
+   margin-bottom: 2rem;
+   color: #202020;
+}
+
+.buttons-container {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+   margin-bottom: 1rem;
+}
+
+.button {
+   max-width: 300px;
+   margin: 0 auto;
+   width: 100%;
+   font-size: 1rem;
+   border: none;
+   display: block;
+   text-align: center;
+   padding: 0.75rem;
+   border-radius: 10px;
+   cursor: pointer;
+   background: var(--green);
+   color: var(--white);
+   font-size: 0.875rem;
+}
+
+.button#follow {
+   border: 2px solid var(--green);
+   color: var(--green);
+   background: var(--white);
+   backdrop-filter: blur(8px);
+   -webkit-backdrop-filter: blur(8px);
+}
+
+.button:active {
+   transform: scale(1.05);
+}
+
+@media screen and (min-width: 1024px) {
+
+   .app-screen {
+      padding: 20px 24px;
+   }
+
+   .header-icon {
+      width: 32px;
+      height: 32px;
+   }
+
+   .header {
+      margin-bottom: 8rem;
+   }
+
+   .header h1 {
+      font-size: 1rem;
+   }
+
+   .header-login a {
+      font-size: 1rem;
+   }
+
+   .main-content h1 {
+      font-size: 2rem;
+   }
+
+   .main-content p {
+      font-size: 1rem;
+   }
+
+   .buttons-container .button {
+      margin: 0;
+   }
+
+   .buttons-container {
+      flex-direction: row;
+      justify-items: start;
+      justify-content: start;
+      margin-bottom: 1.5rem;
+   }
+
+   .button {
+      width: fit-content;
+   }
+}

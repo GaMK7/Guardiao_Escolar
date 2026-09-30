@@ -1,0 +1,27 @@
+* {
+   padding: 0px;
+   margin: 0px;
+   box-sizing: border-box;
+}
+
+body {
+   font-family: "Inter", sans-serif;
+}
+
+a {
+   all: unset;
+   cursor: pointer;
+}
+
+ul {
+   list-style: none;
+}
+
+img {
+   max-width: 100%;
+   display: block;
+}
+
+textarea {
+   resize: none;
+}
