@@ -1201,8 +1201,8 @@ body.pagina-inicio::before {
   border-radius: 0;
   background: rgba(226, 246, 235, 0.22);
   filter: none;
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   pointer-events: none;
   z-index: 0;
 }
@@ -1221,7 +1221,7 @@ body.pagina-inicio::after {
 }
 
 body.pagina-inicio .painel-vidro {
-  background: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.863);
   border-color: rgba(255, 255, 255, 0.72);
   box-shadow: 0 28px 68px rgba(26, 77, 63, 0.2);
   backdrop-filter: blur(20px) saturate(115%);
