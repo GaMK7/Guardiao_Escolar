@@ -53,21 +53,23 @@
 
 .password-visible {
    position: absolute;
-   width: 20px;
-   height: 20px;
-   right: 10px;
-   top: 10px;
+   width: 24px;
+   height: 24px;
+   right: 8px;
+   top: 8px;
    cursor: pointer;
+   background-position: center;
+   background-repeat: no-repeat;
 }
 
 .password-visible:active {
-   transform: scale(1.1);
+   transform: scale(1.05);
 }
 
 .password-visible.hide {
-   background-color: red;
+   background-image: url("/img/visibility-off.svg");
 }
 
 .password-visible.show {
-   background-color: blue;
+   background-image: url("/img/visibility-on.svg");
 }
