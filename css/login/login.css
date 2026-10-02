@@ -44,4 +44,30 @@
    font-size: 0.75rem;
    color: var(--gray);
    font-weight: 600;
+   text-decoration: underline;
+}
+
+.password-container {
+   position: relative;
+}
+
+.password-visible {
+   position: absolute;
+   width: 20px;
+   height: 20px;
+   right: 10px;
+   top: 10px;
+   cursor: pointer;
+}
+
+.password-visible:active {
+   transform: scale(1.1);
+}
+
+.password-visible.hide {
+   background-color: red;
+}
+
+.password-visible.show {
+   background-color: blue;
 }

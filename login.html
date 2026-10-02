@@ -40,7 +40,11 @@
 
             <div class="form-input-container">
                <label for="password" class="form-label">Senha</label>
-               <input type="password" placeholder="*********" required class="form-input">
+
+               <div class="password-container">
+                  <input type="password" id="password" placeholder="•••••••••" required class="form-input">
+                  <div class="password-visible hide"></div>
+               </div>
             </div>
 
             <button type="submit" class="button" id="submit">Entrar</button>
@@ -49,6 +53,8 @@
       </section>
 
    </main>
+
+   <script src="./js/passwordVisible.js"></script>
 
 </body>
 
