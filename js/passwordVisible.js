@@ -1,6 +1,3 @@
-
-
-
 let visible = false;
 
 function passwordVisible() {
