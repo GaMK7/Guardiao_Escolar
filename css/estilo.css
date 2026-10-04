@@ -24,8 +24,8 @@
 
   --raio: 10px;
   --raio-g: 14px;
-  --largura: 560px; /* páginas públicas — leitura no celular */
-  --largura-admin: 1060px; /* páginas da escola — uso no computador */
+  --largura: 1040px; /* páginas públicas — mesma largura visual da home no desktop */
+  --largura-admin: 1040px; /* área administrativa alinhada à largura da home */
 }
 
 /* --------------------------------------------------------- base */
@@ -692,43 +692,23 @@ tbody tr:hover {
 
 /* ==========================================================================
    HOME / INDEX — VISUAL ELEGANTE
-   Mantido no CSS global, mas restrito à página inicial por body.pagina-inicio
-   ========================================================================== */
-/* ==========================================================================
-   ESTILO EXCLUSIVO DA HOME
-   Aplica-se somente ao index.html porque depende de body.pagina-inicio
    ========================================================================== */
 
 body.pagina-inicio {
-  min-height: 100vh;
+  height: 100svh;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
   color: #173229;
-  background: radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.85) 0, rgba(255, 255, 255, 0) 28%), radial-gradient(circle at 85% 15%, rgba(214, 247, 229, 0.8) 0, rgba(214, 247, 229, 0) 26%), radial-gradient(circle at 50% 100%, rgba(108, 181, 148, 0.22) 0, rgba(108, 181, 148, 0) 32%), linear-gradient(140deg, #eefaf3 0%, #d7f0e2 35%, #e7f6ed 58%, #b9e1cd 100%);
-  position: relative;
-  overflow-x: hidden;
 }
 
 body.pagina-inicio::before,
 body.pagina-inicio::after {
   content: "";
   position: fixed;
-  border-radius: 50%;
-  filter: blur(70px);
   pointer-events: none;
   z-index: 0;
-}
-body.pagina-inicio::before {
-  width: 260px;
-  height: 260px;
-  background: rgba(87, 168, 134, 0.22);
-  top: 80px;
-  left: -60px;
-}
-body.pagina-inicio::after {
-  width: 340px;
-  height: 340px;
-  background: rgba(255, 255, 255, 0.6);
-  right: -100px;
-  bottom: 30px;
 }
 
 body.pagina-inicio .topo-site,
@@ -736,16 +716,18 @@ body.pagina-inicio .palco,
 body.pagina-inicio .rodape-home {
   position: relative;
   z-index: 1;
+  text-decoration: none;
 }
 
 body.pagina-inicio .topo-site {
-  padding: 26px 26px 0;
+  padding: 14px 26px 0;
 }
 
 body.pagina-inicio .marca {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  margin: 0;
   text-decoration: none;
   color: #1e5447;
   font-weight: 800;
@@ -753,82 +735,84 @@ body.pagina-inicio .marca {
 }
 
 body.pagina-inicio .marca svg {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
 }
 
 body.pagina-inicio .marca span {
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 body.pagina-inicio .palco {
-  min-height: calc(100vh - 150px);
+  min-height: 0;
   display: grid;
   place-items: center;
-  padding: 28px 18px 42px;
+  padding: 10px 18px;
 }
 
 body.pagina-inicio .painel-vidro {
   width: min(1040px, 100%);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.42) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  border-radius: 28px;
-  box-shadow: 0 24px 60px rgba(34, 93, 76, 0.18);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  padding: 34px 28px 28px;
+  max-height: 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.86) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 26px;
+  box-shadow: 0 24px 58px rgba(34, 93, 76, 0.18);
+  backdrop-filter: blur(18px) saturate(115%);
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+  padding: 30px 28px 26px;
   text-align: center;
 }
 
 body.pagina-inicio .selo {
   display: inline-flex;
   align-items: center;
-  margin: 0 0 14px;
-  padding: 8px 14px;
+  margin: 0 0 8px;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.266);
+  border: 1px solid #c0c0c0;
   color: #1e5447;
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 700;
 }
 
 body.pagina-inicio h1 {
   margin: 0;
-  font-size: clamp(2rem, 4.1vw, 3.2rem);
-  line-height: 1.06;
+  font-size: clamp(2rem, 3.2vw, 2.85rem);
+  line-height: 1.02;
   letter-spacing: -0.03em;
 }
 
 body.pagina-inicio .subtitulo-home {
   width: min(760px, 100%);
-  margin: 14px auto 0;
-  font-size: 1rem;
+  margin: 8px auto 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
   color: #47665c;
 }
 
 body.pagina-inicio .grade-opcoes {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
-  margin-top: 34px;
+  gap: 18px;
+  margin-top: 18px;
 }
 
 body.pagina-inicio .cartao-opcao {
-  min-height: 255px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.42) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.52);
-  border-radius: 24px;
-  padding: 26px 20px 22px;
+  min-height: 184px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.76) 0%, rgba(255, 255, 255, 0.56) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 22px;
+  padding: 18px 18px 16px;
   text-decoration: none;
   color: #173229;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  box-shadow: 0 16px 30px rgba(27, 92, 72, 0.16);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 14px 28px rgba(27, 92, 72, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition:
     transform 0.22s ease,
     box-shadow 0.22s ease,
@@ -837,21 +821,21 @@ body.pagina-inicio .cartao-opcao {
 }
 
 body.pagina-inicio .cartao-opcao:hover {
-  transform: translateY(-5px) scale(1.01);
-  box-shadow: 0 24px 34px rgba(41, 109, 88, 0.18);
-  border-color: rgba(86, 150, 126, 0.4);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.76) 0%, rgba(243, 252, 247, 0.68) 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 32px rgba(41, 109, 88, 0.16);
+  border-color: rgba(86, 150, 126, 0.42);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(243, 252, 247, 0.76) 100%);
 }
 
 body.pagina-inicio .cartao-opcao--ativo {
-  border-color: rgba(80, 141, 118, 0.45);
-  box-shadow: 0 24px 40px rgba(42, 110, 90, 0.2);
+  border-color: rgba(80, 141, 118, 0.48);
+  box-shadow: 0 18px 34px rgba(42, 110, 90, 0.16);
 }
 
 body.pagina-inicio .cartao-opcao__icone {
-  width: 88px;
-  height: 88px;
-  border-radius: 22px;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -859,111 +843,111 @@ body.pagina-inicio .cartao-opcao__icone {
   color: #1e5447;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 12px 24px rgba(55, 123, 100, 0.14);
-  margin-bottom: 18px;
+    0 10px 20px rgba(55, 123, 100, 0.12);
+  margin-bottom: 12px;
 }
 
 body.pagina-inicio .cartao-opcao__icone svg {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
 }
 
 body.pagina-inicio .cartao-opcao strong {
   display: block;
-  font-size: 1.1rem;
-  line-height: 1.25;
-  margin-bottom: 8px;
+  font-size: 1.02rem;
+  line-height: 1.2;
+  margin-bottom: 6px;
 }
 
 body.pagina-inicio .cartao-opcao span:last-child {
   display: block;
-  max-width: 24ch;
+  max-width: 28ch;
   color: #47665c;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 body.pagina-inicio .faixa-confianca {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 26px;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 body.pagina-inicio .faixa-confianca span {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: 7px;
+  padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.56);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(255, 255, 255, 0.74);
   color: #1e5447;
-  font-size: 0.93rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
 body.pagina-inicio .faixa-confianca svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   flex: none;
 }
 
 body.pagina-inicio .alerta-emergencia {
-  margin-top: 24px;
+  margin: 12px auto 0;
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 10px;
   width: min(760px, 100%);
-  margin-left: auto;
-  margin-right: auto;
-  padding: 16px 18px;
-  border-radius: 22px;
-  background: rgba(255, 247, 244, 0.72);
-  border: 1px solid rgba(231, 168, 145, 0.46);
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(255, 247, 244, 0.78);
+  border: 1px solid rgba(231, 168, 145, 0.48);
   color: #7d3b2d;
   text-align: left;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 body.pagina-inicio .alerta-emergencia__icone {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
   flex: none;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.58);
+  background: rgba(255, 255, 255, 0.62);
 }
 
 body.pagina-inicio .alerta-emergencia__icone svg {
-  width: 22px;
-  height: 22px;
+  width: 19px;
+  height: 19px;
 }
 
 body.pagina-inicio .alerta-emergencia strong {
   display: block;
-  margin-bottom: 4px;
-  font-size: 1rem;
+  margin-bottom: 1px;
+  font-size: 0.94rem;
 }
 
 body.pagina-inicio .alerta-emergencia p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.86rem;
+  line-height: 1.35;
 }
 
 body.pagina-inicio .rodape-home {
   text-align: center;
-  padding: 0 18px 26px;
+  padding: 5px 18px 8px;
   color: #47665c;
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   position: relative;
   z-index: 1;
 }
 
 body.pagina-inicio .rodape-home p {
-  margin: 0 0 4px;
+  margin: 0 0 2px;
 }
 
 body.pagina-inicio .rodape-home a {
@@ -972,6 +956,16 @@ body.pagina-inicio .rodape-home a {
 }
 
 @media (max-width: 900px) {
+  body.pagina-inicio {
+    height: auto;
+    min-height: 100svh;
+    overflow-y: auto;
+  }
+
+  body.pagina-inicio .palco {
+    padding: 18px;
+  }
+
   body.pagina-inicio .grade-opcoes {
     grid-template-columns: 1fr;
     max-width: 420px;
@@ -986,12 +980,12 @@ body.pagina-inicio .rodape-home a {
 
 @media (max-width: 640px) {
   body.pagina-inicio .topo-site {
-    padding: 18px 18px 0;
+    padding: 16px 18px 0;
   }
 
   body.pagina-inicio .painel-vidro {
-    padding: 24px 16px 18px;
-    border-radius: 24px;
+    padding: 22px 16px 18px;
+    border-radius: 22px;
   }
 
   body.pagina-inicio h1 {
@@ -999,12 +993,12 @@ body.pagina-inicio .rodape-home a {
   }
 
   body.pagina-inicio .subtitulo-home {
-    font-size: 0.96rem;
+    font-size: 0.94rem;
   }
 
   body.pagina-inicio .alerta-emergencia {
-    padding: 14px;
-    gap: 12px;
+    padding: 12px;
+    gap: 10px;
   }
 
   body.pagina-inicio .faixa-confianca {
@@ -1014,6 +1008,77 @@ body.pagina-inicio .rodape-home a {
 
   body.pagina-inicio .faixa-confianca span {
     justify-content: center;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 760px) {
+  body.pagina-inicio .topo-site {
+    padding-top: 10px;
+  }
+
+  body.pagina-inicio .palco {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  body.pagina-inicio .painel-vidro {
+    padding-top: 16px;
+    padding-bottom: 14px;
+  }
+
+  body.pagina-inicio .selo {
+    margin-bottom: 6px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  body.pagina-inicio h1 {
+    font-size: clamp(1.85rem, 3vw, 3rem);
+    margin-top: 25px;
+    margin-bottom: 25px;
+  }
+
+  body.pagina-inicio .subtitulo-home {
+    margin-top: 6px;
+    font-size: 0.9rem;
+  }
+
+  body.pagina-inicio .grade-opcoes {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    gap: 14px;
+  }
+
+  body.pagina-inicio .cartao-opcao {
+    min-height: 180px;
+    padding: 14px 16px 12px;
+  }
+
+  body.pagina-inicio .cartao-opcao__icone {
+    width: 54px;
+    height: 54px;
+    margin-bottom: 9px;
+  }
+
+  body.pagina-inicio .cartao-opcao__icone svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  body.pagina-inicio .faixa-confianca {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  body.pagina-inicio .alerta-emergencia {
+    margin-top: 9px;
+    margin-bottom: 15px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  body.pagina-inicio .rodape-home {
+    padding-bottom: 5px;
   }
 }
 
@@ -1030,10 +1095,10 @@ body:not(.pagina-inicio) {
 
 /* O bloco principal das páginas públicas vira um cartão branco/flutuante */
 body:not(.pagina-inicio) .pagina {
-  width: min(calc(100% - 32px), var(--largura));
+  width: min(calc(100% - 40px), var(--largura));
   max-width: var(--largura);
-  margin: 34px auto;
-  padding: 30px 30px 34px;
+  margin: 28px auto;
+  padding: 32px 38px 36px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 26px;
@@ -1044,7 +1109,7 @@ body:not(.pagina-inicio) .pagina {
 
 /* Área administrativa mantém largura maior, mas segue a mesma linguagem */
 body:not(.pagina-inicio) .pagina.pagina--admin {
-  width: min(calc(100% - 36px), var(--largura-admin));
+  width: min(calc(100% - 40px), var(--largura-admin));
   max-width: var(--largura-admin);
 }
 
@@ -1167,7 +1232,7 @@ body:not(.pagina-inicio) .rodape {
 /* Topo das telas administrativas */
 body:not(.pagina-inicio) .barra-topo {
   margin: 18px auto 0;
-  width: min(calc(100% - 36px), var(--largura-admin));
+  width: min(calc(100% - 40px), var(--largura-admin));
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.78);
@@ -1193,39 +1258,15 @@ body.pagina-inicio {
 
 /* camada de desfoque real sobre a foto, sem desfocar o conteúdo */
 body.pagina-inicio::before {
-  content: "";
-  position: fixed;
   inset: -18px;
-  width: auto;
-  height: auto;
-  border-radius: 0;
   background: rgba(226, 246, 235, 0.22);
-  filter: none;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  pointer-events: none;
-  z-index: 0;
 }
 
 body.pagina-inicio::after {
-  content: "";
-  position: fixed;
   inset: 0;
-  width: auto;
-  height: auto;
-  border-radius: 0;
   background: radial-gradient(circle at 16% 20%, rgba(255, 255, 255, 0.54), transparent 32%), radial-gradient(circle at 88% 14%, rgba(192, 235, 214, 0.38), transparent 30%);
-  filter: none;
-  pointer-events: none;
-  z-index: 0;
-}
-
-body.pagina-inicio .painel-vidro {
-  background: rgba(255, 255, 255, 0.863);
-  border-color: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 28px 68px rgba(26, 77, 63, 0.2);
-  backdrop-filter: blur(20px) saturate(115%);
-  -webkit-backdrop-filter: blur(20px) saturate(115%);
 }
 
 @media (max-width: 640px) {
