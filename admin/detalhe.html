@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Denúncia 2026-0148 — Guardião Escolar</title>
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+  <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="barra-topo">
+    <div class="interno">
+      <a class="marca" href="denuncias.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2.5 4 5.6v6.1c0 4.7 3.3 8.2 8 9.8 4.7-1.6 8-5.1 8-9.8V5.6L12 2.5Z" stroke="#1F5D50" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+        <span>Guardião Escolar</span>
+      </a>
+      <p class="usuario">Ana Paula <a href="/api/sessao/sair">Sair</a></p>
+    </div>
+  </header>
+
+  <main class="pagina pagina--admin" id="conteudo">
+    <a class="voltar" href="denuncias.html">&larr; Todas as denúncias</a>
+
+    <!-- GET /api/denuncias/2026-0148 -->
+    <h1 class="numero">Denúncia 2026-0148</h1>
+
+    <div class="cabecalho-caso">
+      <span class="etiqueta etiqueta--analise">Em análise</span>
+      <span class="etiqueta etiqueta--anonima">Anônima</span>
+      <span class="meta">Cyberbullying · ocorrida em 12/03/2026 · Internet · relato de aluno</span>
+    </div>
+
+    <div class="colunas-admin">
+
+      <!-- ---------------------------------------- coluna esquerda -->
+      <section>
+        <h2>Relato</h2>
+        <p class="relato">Criaram um grupo no aplicativo só para tirar print das minhas mensagens e rir. Já falei para parar e continuou. Tem gente da minha sala e de outra turma.</p>
+
+        <h2 style="margin-top:26px">Histórico</h2>
+        <ol class="linha-tempo">
+          <li>
+            <strong>Recebida</strong>
+            <time datetime="2026-03-12T14:20">12/03 às 14h20 · registro automático</time>
+          </li>
+          <li>
+            <strong>Em análise</strong>
+            <time datetime="2026-03-13T09:05">13/03 às 09h05 · Ana Paula</time>
+            <p>A coordenação já está conversando com as turmas envolvidas. Vamos retornar até sexta-feira.</p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- ---------------------------------------- coluna direita -->
+      <section>
+        <div class="cartao">
+          <h2>Atualizar andamento</h2>
+
+          <!-- POST /api/denuncias/2026-0148/andamentos -->
+          <form action="/api/denuncias/2026-0148/andamentos" method="post">
+            <div class="campo">
+              <label for="status">Novo status</label>
+              <select id="status" name="status" required>
+                <option value="recebida">Recebida</option>
+                <option value="analise" selected>Em análise</option>
+                <option value="concluida">Concluída</option>
+                <option value="arquivada">Arquivada</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="providencia">O que foi feito</label>
+              <textarea id="providencia" name="providencia" maxlength="800" required
+                        placeholder="Descreva a providência adotada."></textarea>
+              <span class="ajuda">Este texto aparece para quem fez a denúncia. Não escreva nomes de alunos nem informações que possam identificar terceiros.</span>
+            </div>
+
+            <button type="submit" class="botao">Salvar atualização</button>
+          </form>
+        </div>
+
+        <div class="aviso aviso--neutro">
+          Denúncias não são excluídas. Para encerrar um caso sem providência, use o status <strong>Arquivada</strong> e explique o motivo no campo acima.
+        </div>
+      </section>
+
+    </div>
+
+    <footer class="rodape">
+      <p>Toda atualização registra quem alterou e quando.</p>
+    </footer>
+  </main>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>
