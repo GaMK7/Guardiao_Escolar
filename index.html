@@ -1,43 +1,108 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Canal para registrar denúncias de bullying, assédio e violência na escola. É possível denunciar sem se identificar.">
-  <title>Guardião Escolar</title>
-  <link rel="stylesheet" href="css/estilo.css">
-</head>
-<body>
-  <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Canal seguro para registrar denúncias de bullying, assédio e violência na escola. É possível denunciar sem se identificar." />
+    <meta name="theme-color" content="#67a88f" />
+    <title>Guardião Escolar</title>
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+    <link rel="stylesheet" href="css/estilo.css" />
+  </head>
+  <body class="pagina-inicio">
+    <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
 
-  <main class="pagina" id="conteudo">
+    <header class="topo-site">
+      <a class="marca" href="index.html" aria-label="Guardião Escolar — início">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2.5 4 5.6v6.1c0 4.7 3.3 8.2 8 9.8 4.7-1.6 8-5.1 8-9.8V5.6L12 2.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+          <path d="M8.6 12.1l2.4 2.4 4.4-4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span>Guardião Escolar</span>
+      </a>
+    </header>
 
-    <a class="marca" href="index.html">
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 2.5 4 5.6v6.1c0 4.7 3.3 8.2 8 9.8 4.7-1.6 8-5.1 8-9.8V5.6L12 2.5Z" stroke="#1F5D50" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M8.6 12.1l2.4 2.4 4.4-4.6" stroke="#1F5D50" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span>Guardião Escolar</span>
-    </a>
+    <main id="conteudo" class="palco">
+      <section class="painel-vidro" aria-labelledby="titulo-principal">
+        <p class="selo">Canal seguro e confidencial</p>
+        <h1 id="titulo-principal">Como você deseja continuar?</h1>
+        <p class="subtitulo-home">Escolha uma opção para registrar, acompanhar ou entender melhor situações de bullying, assédio e violência na escola.</p>
 
-    <h1>Conte o que está acontecendo na escola.</h1>
-    <p class="subtitulo">Você pode enviar sem dizer quem é. Quem lê é a equipe autorizada pela direção.</p>
+        <div class="grade-opcoes" aria-label="Ações principais do Guardião Escolar">
+          <a class="cartao-opcao" href="denuncia.html">
+            <span class="cartao-opcao__icone" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 20h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                <path d="M15.8 4.2a2.4 2.4 0 0 1 3.4 3.4L8.4 18.4 4 20l1.6-4.4L15.8 4.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <strong>Registrar uma denúncia</strong>
+            <span>Relate o que está acontecendo. Você pode denunciar sem se identificar.</span>
+          </a>
 
-    <a class="botao" href="denuncia.html">Registrar uma denúncia</a>
-    <a class="botao botao--secundario" href="consultar.html">Acompanhar uma denúncia</a>
-    <a class="link-discreto" href="informacoes.html">Entender o que é bullying e onde buscar ajuda</a>
+          <a class="cartao-opcao" href="consultar.html">
+            <span class="cartao-opcao__icone" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M2.5 12s3.7-6 9.5-6 9.5 6 9.5 6-3.7 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.8" />
+                <circle cx="12" cy="12" r="2.7" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+            </span>
+            <strong>Acompanhar denúncia</strong>
+            <span>Consulte o andamento do seu caso com o código recebido.</span>
+          </a>
 
-    <div class="aviso" style="margin-top:28px">
-      <strong>Está acontecendo agora?</strong>
-      Ligue 190. Este canal não é atendido em tempo real e não serve para situações de perigo imediato.
-    </div>
+          <a class="cartao-opcao" href="informacoes.html">
+            <span class="cartao-opcao__icone" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+                <path d="M12 10v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                <circle cx="12" cy="7.2" r=".9" fill="currentColor" />
+              </svg>
+            </span>
+            <strong>Entender e buscar ajuda</strong>
+            <span>Saiba o que é bullying e onde procurar apoio dentro e fora da escola.</span>
+          </a>
+        </div>
 
-    <footer class="rodape">
-      <p>Projeto de extensão — Guardião Escolar · 2026/2</p>
-      <p><a href="admin/login.html">Acesso da escola</a></p>
+        <div class="faixa-confianca" aria-label="Informações de segurança">
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4 2.7 7 7 9 4.3-2 7-5 7-9V6l-7-3Z" stroke="currentColor" stroke-width="1.8" /></svg>
+            Pode ser anônimo
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8" />
+              <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" />
+            </svg>
+            Acesso restrito
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20s7-4.2 7-9.5V5.7L12 3 5 5.7v4.8C5 15.8 12 20 12 20Z" stroke="currentColor" stroke-width="1.8" /></svg>
+            Equipe autorizada
+          </span>
+        </div>
+
+        <aside class="alerta-emergencia" aria-label="Orientação para emergência">
+          <div class="alerta-emergencia__icone" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 8.8v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M12 17.2h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+              <path d="M10.3 4.4 2.7 17.5A1.7 1.7 0 0 0 4.2 20h15.6a1.7 1.7 0 0 0 1.5-2.5L13.7 4.4a2 2 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div>
+            <strong>Está acontecendo agora?</strong>
+            <p>Ligue 190. Este canal não é atendido em tempo real e não substitui serviços de emergência.</p>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="rodape-home">
+      <p>Projeto de extensão · Guardião Escolar · 2026 | Todos os Direitos Reservados</p>
+      <p><a href="admin/login.html">Painel Administrativo | Acesso da Escola</a></p>
     </footer>
-  </main>
 
-  <script src="js/app.js"></script>
-</body>
+    <script src="js/app.js"></script>
+  </body>
 </html>
