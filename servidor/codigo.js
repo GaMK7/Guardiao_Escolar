@@ -11,12 +11,15 @@ function gerarCodigo() {
   return codigo.slice(0, 4) + '-' + codigo.slice(4);
 }
 
-// HMAC com chave do .env: se o banco vazar, os códigos não podem ser descobertos por tentativa.
-// O código é normalizado antes, então "7h2k 9qx4" e "7H2K-9QX4" geram o mesmo hash.
-// A consulta pública deve usar esta mesma função para achar a denúncia.
-function hashCodigo(codigo) {
-  const normalizado = String(codigo).toUpperCase().replace(/[^A-Z0-9]/g, '');
-  return crypto.createHmac('sha256', process.env.CODIGO_SEGREDO).update(normalizado).digest('hex');
+// "7h2k 9qx4" e "7H2K-9QX4" viram "7H2K9QX4".
+function normalizarCodigo(codigo) {
+  return String(codigo).toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
-module.exports = { gerarCodigo, hashCodigo };
+// HMAC com chave do .env: se o banco vazar, os códigos não podem ser descobertos por tentativa.
+// O registro e a consulta pública usam esta mesma função.
+function hashCodigo(codigo) {
+  return crypto.createHmac('sha256', process.env.CODIGO_SEGREDO).update(normalizarCodigo(codigo)).digest('hex');
+}
+
+module.exports = { gerarCodigo, normalizarCodigo, hashCodigo };
