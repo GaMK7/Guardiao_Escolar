@@ -18,6 +18,15 @@ guardiao-escolar/
 │   └── detalhe.html      Tela 9 — detalhe e atualização de andamento
 ├── css/estilo.css        folha única, com todos os componentes
 ├── js/app.js             cópia do código, contador, máscara e envio do formulário
+├── servidor/             back-end em Node.js + Express
+│   ├── index.js          lê o .env e sobe o servidor
+│   ├── app.js            API, telas do front e tratamento de erros
+│   ├── banco.js          conexão com o PostgreSQL
+│   ├── codigo.js         geração e hash do código de acompanhamento
+│   ├── validacao.js      validação no servidor
+│   └── rotas/denuncias.js
+├── guardiao-escolar-postgresql.sql   banco (rodar no Neon)
+├── .env.example
 └── LEIAME.md
 ```
 
@@ -37,6 +46,23 @@ As rotas abaixo ainda não existem: são os pontos que o Express precisa respond
 | admin/detalhe.html | `GET /api/denuncias/:protocolo` | denúncia completa |
 | admin/detalhe.html | `POST /api/denuncias/:protocolo/andamentos` | grava status + providência |
 | todas | `GET /api/sessao/sair` | encerra a sessão |
+
+## Como rodar o back-end
+
+Precisa do Node.js 20.12 ou mais novo.
+
+1. `npm install`
+2. Copie `.env.example` para `.env` e preencha `DATABASE_URL` e `CODIGO_SEGREDO`.
+3. Rode `guardiao-escolar-postgresql.sql` no SQL Editor do Neon. Pode rodar de novo quando o arquivo mudar: ele atualiza o banco sem apagar dados.
+4. `npm run dev` e abra `http://localhost:3000`. O mesmo servidor entrega as telas e a API.
+
+### Rotas prontas
+
+`POST /api/denuncias` registra a denúncia, sempre anônima.
+
+- Recebe `tipo`, `descricao`, `data_ocorrencia` (AAAA-MM-DD), `local` e `vinculo` (opcional). Qualquer outro campo, como nome ou contato, é descartado.
+- Responde `201 { protocolo, codigo }`. O código só aparece nessa resposta; o banco guarda apenas o hash dele (função `hashCodigo` em `servidor/codigo.js`, que a consulta pública também deve usar).
+- Com dado inválido, responde `400 { erro, campos }`, com uma mensagem por campo: `{ "campos": { "local": "Escolha onde aconteceu." } }`.
 
 ## Cuidados que já estão embutidos no HTML
 

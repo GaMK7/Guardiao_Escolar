@@ -8,11 +8,11 @@ SET LOCAL search_path = pg_catalog;
 -- Cria o agrupamento do banco.
 CREATE SCHEMA IF NOT EXISTS guardiao_mer;
 
--- Guarda a classificação anônima.
+-- Guarda o vínculo do denunciante anônimo, só quando ele é informado.
 CREATE TABLE IF NOT EXISTS guardiao_mer.denunciante (
     id_denunciante BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     classificacao VARCHAR(20) NOT NULL
-        CHECK (classificacao IN ('professor','aluno','responsavel','funcionario'))
+        CHECK (classificacao IN ('professor','aluno','responsavel','funcionario','outro'))
 );
 -- Guarda o acesso do administrador.
 CREATE TABLE IF NOT EXISTS guardiao_mer.administrador (
@@ -23,10 +23,12 @@ CREATE TABLE IF NOT EXISTS guardiao_mer.administrador (
         CHECK (senha_hash ~ '^\$2[aby]\$(0[4-9]|[12][0-9]|3[01])\$[./A-Za-z0-9]{53}$'),
     ativo BOOLEAN NOT NULL DEFAULT TRUE
 );
--- Guarda denúncia, token, status e solução.
+-- Guarda denúncia, protocolo, token, status e solução.
 CREATE TABLE IF NOT EXISTS guardiao_mer.registro (
     id_registro BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    denunciante_id BIGINT NOT NULL UNIQUE
+    protocolo VARCHAR(20) NOT NULL UNIQUE
+        CHECK (protocolo ~ '^[0-9]{4}-[0-9]{4,}$'),
+    denunciante_id BIGINT UNIQUE
         REFERENCES guardiao_mer.denunciante(id_denunciante) ON DELETE RESTRICT,
     token_protocolo_hash VARCHAR(64) NOT NULL UNIQUE
         CHECK (token_protocolo_hash ~ '^[0-9a-f]{64}$'),
@@ -42,6 +44,37 @@ CREATE TABLE IF NOT EXISTS guardiao_mer.registro (
     criado_em TIMESTAMPTZ NOT NULL DEFAULT now(),
     CHECK (status NOT IN ('concluida','arquivada') OR solucao IS NOT NULL)
 );
+
+-- Monta o protocolo: ano da criação (horário de Brasília) e número do registro.
+CREATE OR REPLACE FUNCTION guardiao_mer.montar_protocolo(p_id BIGINT, p_criado_em TIMESTAMPTZ)
+RETURNS TEXT LANGUAGE sql STABLE SET search_path = pg_catalog, pg_temp AS $$
+    SELECT to_char(p_criado_em AT TIME ZONE 'America/Sao_Paulo', 'YYYY') || '-' ||
+        lpad(p_id::text, greatest(4, length(p_id::text)), '0');
+$$;
+
+-- Atualiza o banco criado pela versão anterior, preservando os dados.
+ALTER TABLE guardiao_mer.denunciante DROP CONSTRAINT IF EXISTS denunciante_classificacao_check;
+ALTER TABLE guardiao_mer.denunciante ADD CONSTRAINT denunciante_classificacao_check
+    CHECK (classificacao IN ('professor','aluno','responsavel','funcionario','outro'));
+ALTER TABLE guardiao_mer.registro ALTER COLUMN denunciante_id DROP NOT NULL;
+ALTER TABLE guardiao_mer.registro ADD COLUMN IF NOT EXISTS protocolo VARCHAR(20);
+UPDATE guardiao_mer.registro SET protocolo = guardiao_mer.montar_protocolo(id_registro, criado_em)
+    WHERE protocolo IS NULL;
+ALTER TABLE guardiao_mer.registro ALTER COLUMN protocolo SET NOT NULL;
+DO $migrar$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'registro_protocolo_key'
+                   AND conrelid = 'guardiao_mer.registro'::regclass) THEN
+        ALTER TABLE guardiao_mer.registro ADD CONSTRAINT registro_protocolo_key UNIQUE (protocolo);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'registro_protocolo_check'
+                   AND conrelid = 'guardiao_mer.registro'::regclass) THEN
+        ALTER TABLE guardiao_mer.registro ADD CONSTRAINT registro_protocolo_check
+            CHECK (protocolo ~ '^[0-9]{4}-[0-9]{4,}$');
+    END IF;
+END;
+$migrar$;
+
 -- Confere as tabelas existentes antes de atualizar as funções.
 DO $verificar$
 BEGIN
@@ -54,7 +87,8 @@ BEGIN
         ('denunciante','id_denunciante','bigint',true,'a',''),
         ('denunciante','classificacao','character varying(20)',true,'',''),
         ('registro','id_registro','bigint',true,'a',''),
-        ('registro','denunciante_id','bigint',true,'',''),
+        ('registro','protocolo','character varying(20)',true,'',''),
+        ('registro','denunciante_id','bigint',false,'',''),
         ('registro','token_protocolo_hash','character varying(64)',true,'',''),
         ('registro','tipo_ocorrencia','character varying(30)',true,'',''),
         ('registro','descricao','character varying(2000)',true,'',''),
@@ -83,8 +117,10 @@ BEGIN
         ('administrador','CHECK ((senha_hash ~ ''^\$2[aby]\$(0[4-9]|[12][0-9]|3[01])\$[./A-Za-z0-9]{53}$''::text))'),
         ('administrador','PRIMARY KEY (id_administrador)'),
         ('administrador','UNIQUE (email)'),
-        ('denunciante','CHECK (((classificacao)::text = ANY ((ARRAY[''professor''::character varying, ''aluno''::character varying, ''responsavel''::character varying, ''funcionario''::character varying])::text[])))'),
+        ('denunciante','CHECK (((classificacao)::text = ANY ((ARRAY[''professor''::character varying, ''aluno''::character varying, ''responsavel''::character varying, ''funcionario''::character varying, ''outro''::character varying])::text[])))'),
         ('denunciante','PRIMARY KEY (id_denunciante)'),
+        ('registro','CHECK (((protocolo)::text ~ ''^[0-9]{4}-[0-9]{4,}$''::text))'),
+        ('registro','UNIQUE (protocolo)'),
         ('registro','CHECK ((((status)::text <> ALL ((ARRAY[''concluida''::character varying, ''arquivada''::character varying])::text[])) OR (solucao IS NOT NULL)))'),
         ('registro','CHECK (((descricao)::text ~ ''[^[:space:]]''::text))'),
         ('registro','CHECK (((local)::text = ANY ((ARRAY[''sala''::character varying, ''corredor''::character varying, ''patio''::character varying, ''quadra''::character varying, ''banheiro''::character varying, ''refeitorio''::character varying, ''entrada''::character varying, ''internet''::character varying, ''outro''::character varying])::text[])))'),
@@ -164,8 +200,10 @@ BEGIN
             RAISE EXCEPTION 'Registro deve iniciar como recebida, sem solução.' USING ERRCODE = '23514';
         END IF;
         NEW.criado_em := clock_timestamp();
+        NEW.protocolo := guardiao_mer.montar_protocolo(NEW.id_registro, NEW.criado_em);
     ELSE
         IF NEW.id_registro IS DISTINCT FROM OLD.id_registro OR
+           NEW.protocolo IS DISTINCT FROM OLD.protocolo OR
            NEW.denunciante_id IS DISTINCT FROM OLD.denunciante_id OR
            NEW.token_protocolo_hash IS DISTINCT FROM OLD.token_protocolo_hash OR
            NEW.tipo_ocorrencia IS DISTINCT FROM OLD.tipo_ocorrencia OR
@@ -189,21 +227,25 @@ DROP TRIGGER IF EXISTS registro_validado ON guardiao_mer.registro;
 CREATE TRIGGER registro_validado BEFORE INSERT OR UPDATE ON guardiao_mer.registro
 FOR EACH ROW EXECUTE FUNCTION guardiao_mer.validar_registro();
 
--- Cria a denúncia anônima.
-CREATE OR REPLACE FUNCTION guardiao_mer.criar_registro(
+-- Cria a denúncia anônima; o vínculo (p_classificacao) é opcional.
+-- O retorno ganhou o protocolo, por isso a versão anterior é removida antes.
+DROP FUNCTION IF EXISTS guardiao_mer.criar_registro(TEXT, TEXT, TEXT, DATE, TEXT, TEXT);
+CREATE FUNCTION guardiao_mer.criar_registro(
     p_classificacao TEXT, p_tipo TEXT, p_descricao TEXT,
     p_data DATE, p_local TEXT, p_token_hash TEXT
-) RETURNS TABLE (id_registro BIGINT, status TEXT, criado_em TIMESTAMPTZ)
+) RETURNS TABLE (id_registro BIGINT, protocolo TEXT, status TEXT, criado_em TIMESTAMPTZ)
 LANGUAGE plpgsql SET search_path = pg_catalog, guardiao_mer, pg_temp AS $$
 DECLARE v_denunciante BIGINT;
 BEGIN
-    INSERT INTO guardiao_mer.denunciante(classificacao)
-    VALUES (p_classificacao) RETURNING id_denunciante INTO v_denunciante;
+    IF NULLIF(trim(p_classificacao), '') IS NOT NULL THEN
+        INSERT INTO guardiao_mer.denunciante(classificacao)
+        VALUES (trim(p_classificacao)) RETURNING id_denunciante INTO v_denunciante;
+    END IF;
     RETURN QUERY
     INSERT INTO guardiao_mer.registro AS r
         (denunciante_id, tipo_ocorrencia, descricao, data_ocorrencia, local, token_protocolo_hash)
     VALUES (v_denunciante, p_tipo, trim(p_descricao), p_data, p_local, p_token_hash)
-    RETURNING r.id_registro, r.status::TEXT, r.criado_em;
+    RETURNING r.id_registro, r.protocolo::TEXT, r.status::TEXT, r.criado_em;
 END;
 $$;
 
