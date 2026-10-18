@@ -537,7 +537,7 @@ textarea:invalid:not(:placeholder-shown) {
 
 .indicadores {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
   margin: 18px 0;
 }
@@ -675,6 +675,74 @@ tbody tr:hover {
   .colunas-admin {
     grid-template-columns: 1fr;
   }
+}
+
+/* --------------------------------------------------------- telas ligadas à API */
+/* Blocos que o JavaScript mostra ou esconde: "hidden" vence qualquer display. */
+[hidden] {
+  display: none !important;
+}
+
+.oculto-visual {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sucesso {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--verde);
+  margin: 6px 0 10px;
+}
+.sucesso:empty {
+  display: none;
+}
+
+/* contagem por tipo (RF21) */
+.contagens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: -4px 0 18px;
+  padding: 0;
+  font-size: 13px;
+  color: var(--tinta-suave);
+}
+.contagens li {
+  background: var(--superficie);
+  border: 1px solid var(--borda-fraca);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+.contagens strong {
+  margin-left: 6px;
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+}
+
+.paginacao {
+  justify-content: space-between;
+  margin: 16px 0 0;
+}
+.paginacao span {
+  font-size: 14px;
+  color: var(--tinta-suave);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--tinta-suave);
+}
+.acoes .botao + .botao {
+  margin-top: 0;
 }
 
 /* --------------------------------------------------------- impressão */

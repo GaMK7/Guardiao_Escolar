@@ -17,22 +17,31 @@
           </svg>
         </div>
         <h1>Denúncia enviada</h1>
-        <p class="subtitulo">Protocolo <strong id="protocolo-gerado" class="numero">2026-0148</strong></p>
       </div>
 
-      <div class="caixa-codigo">
-        <small>Seu código de acompanhamento</small>
-        <strong id="codigo-gerado">7H2K-9QX4</strong>
+      <!-- Protocolo e código chegam de denuncia.html por sessionStorage (js/app.js). -->
+      <div id="com-codigo">
+        <p class="subtitulo centralizado">Protocolo <strong id="protocolo-gerado" class="numero"></strong></p>
+
+        <div class="caixa-codigo">
+          <small>Seu código de acompanhamento</small>
+          <strong id="codigo-gerado"></strong>
+        </div>
+
+        <button type="button" class="botao botao--secundario" data-copiar="#codigo-gerado">Copiar código</button>
+
+        <div class="aviso" style="margin-top: 20px">
+          <strong>Anote esse código agora.</strong>
+          Ele não aparece de novo e é a única forma de acompanhar a sua denúncia. Guardá-lo não identifica você.
+        </div>
+
+        <p>O que acontece daqui pra frente: a equipe autorizada recebe a denúncia, analisa e registra as providências. Você acompanha tudo pelo código, sem precisar se identificar.</p>
       </div>
 
-      <button type="button" class="botao botao--secundario" data-copiar="#codigo-gerado">Copiar código</button>
-
-      <div class="aviso" style="margin-top: 20px">
-        <strong>Anote esse código agora.</strong>
-        Ele não aparece de novo e é a única forma de acompanhar a sua denúncia. Guardá-lo não identifica você.
+      <div class="aviso aviso--neutro" id="sem-codigo" hidden>
+        <strong>O código não aparece de novo.</strong>
+        Ele só é mostrado uma vez, logo depois do envio, para proteger o seu anonimato. Se você anotou, use-o em "Acompanhar denúncia".
       </div>
-
-      <p>O que acontece daqui pra frente: a equipe autorizada recebe a denúncia, analisa e registra as providências. Você acompanha tudo pelo código, sem precisar se identificar.</p>
 
       <a class="botao" href="consultar.html">Acompanhar denúncia</a>
       <a class="link-discreto" href="index.html">Voltar ao início</a>

@@ -3,11 +3,14 @@ const express = require('express');
 const banco = require('../banco');
 const { exigirLogin } = require('../autenticacao');
 const { gerarCodigo, hashCodigo } = require('../codigo');
-const { validarDenuncia, validarConsulta, validarAndamento, responderInvalido } = require('../validacao');
+const {
+  TIPOS, STATUS, validarDenuncia, validarConsulta, validarAndamento, validarFiltros, responderInvalido
+} = require('../validacao');
 
 const rotas = express.Router();
 const TENTATIVAS_CODIGO = 3;
 const PROTOCOLO = /^\d{4}-\d{4,}$/;
+const POR_PAGINA = 50;
 
 /* POST /api/denuncias — registro público, sem login (RF01).
    Status "recebida" (RN05) e protocolo (RF08) são definidos pelo banco.
@@ -24,7 +27,6 @@ rotas.post('/', async function (req, res) {
         [dados.vinculo, dados.tipo, dados.descricao, dados.data_ocorrencia, dados.local, hashCodigo(codigo)]
       );
       // O código em texto existe só nesta resposta: não vai para o banco nem para o log (RN01).
-      res.set('Cache-Control', 'no-store');
       return res.status(201).json({ protocolo: rows[0].protocolo, codigo: codigo });
     } catch (erro) {
       // Código sorteado já existe (caso raríssimo): sorteia outro.
@@ -43,7 +45,6 @@ rotas.post('/consulta', async function (req, res) {
   if (erros) return responderInvalido(res, erros);
 
   const { rows } = await banco.query('SELECT * FROM guardiao_mer.consultar_por_token($1)', [hashCodigo(dados.codigo)]);
-  res.set('Cache-Control', 'no-store');
   if (!rows.length) {
     return res.status(404).json({ erro: 'Não encontramos nenhuma denúncia com esse código. Confira se digitou certo.' });
   }
@@ -62,8 +63,47 @@ rotas.post('/consulta', async function (req, res) {
   });
 });
 
+/* GET /api/denuncias?status=&tipo=&pagina= — lista para a escola (RF16, RF17).
+   Da mais recente para a mais antiga, 50 por página. Filtros vazios mostram tudo.
+   Resposta: 200 { total, pagina, por_pagina, denuncias: [{ protocolo, tipo, status, local,
+   data_ocorrencia, criado_em }] }, 400 ou 401. */
+rotas.get('/', exigirLogin, async function (req, res) {
+  const { dados, erros } = validarFiltros(req.query);
+  if (erros) return responderInvalido(res, erros);
+
+  const filtro = 'WHERE ($1::text IS NULL OR status = $1) AND ($2::text IS NULL OR tipo_ocorrencia = $2)';
+  const [contagem, lista] = await Promise.all([
+    banco.query('SELECT count(*)::int AS total FROM guardiao_mer.registro ' + filtro, [dados.status, dados.tipo]),
+    banco.query(
+      `SELECT protocolo, tipo_ocorrencia AS tipo, status, local,
+              to_char(data_ocorrencia, 'YYYY-MM-DD') AS data_ocorrencia, criado_em
+         FROM guardiao_mer.registro ${filtro}
+        ORDER BY criado_em DESC, id_registro DESC
+        LIMIT $3 OFFSET $4`,
+      [dados.status, dados.tipo, POR_PAGINA, (dados.pagina - 1) * POR_PAGINA]
+    )
+  ]);
+  res.json({ total: contagem.rows[0].total, pagina: dados.pagina, por_pagina: POR_PAGINA, denuncias: lista.rows });
+});
+
+/* GET /api/denuncias/resumo — contagem por status e por tipo (RF21). Tipos e status sem
+   denúncia aparecem com 0. Resposta: 200 { total, por_status, por_tipo } ou 401. */
+rotas.get('/resumo', exigirLogin, async function (req, res) {
+  const { rows } = await banco.query(
+    'SELECT tipo_ocorrencia, status, quantidade::int AS quantidade FROM guardiao_mer.resumo_registros'
+  );
+  const zerado = (lista) => Object.fromEntries(lista.map((chave) => [chave, 0]));
+  const resumo = { total: 0, por_status: zerado(STATUS), por_tipo: zerado(TIPOS) };
+  for (const linha of rows) {
+    resumo.total += linha.quantidade;
+    resumo.por_status[linha.status] += linha.quantidade;
+    resumo.por_tipo[linha.tipo_ocorrencia] += linha.quantidade;
+  }
+  res.json(resumo);
+});
+
 /* GET /api/denuncias/:protocolo — detalhe completo para a escola (RF18).
-   Resposta: 200 com a denúncia e o histórico com autor, 401 ou 404. */
+   Resposta: 200 com a denúncia e o histórico com o nome do autor, 401 ou 404. */
 rotas.get('/:protocolo', exigirLogin, async function (req, res, next) {
   if (!PROTOCOLO.test(req.params.protocolo)) return next();
 
@@ -71,7 +111,6 @@ rotas.get('/:protocolo', exigirLogin, async function (req, res, next) {
   if (!rows.length) return res.status(404).json({ erro: 'Denúncia não encontrada.' });
 
   const denuncia = rows[0];
-  res.set('Cache-Control', 'no-store');
   res.json({
     protocolo: denuncia.protocolo,
     tipo: denuncia.tipo,

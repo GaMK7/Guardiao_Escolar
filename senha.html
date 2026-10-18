@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Trocar senha — Guardião Escolar</title>
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+    <link rel="stylesheet" href="css/estilo.css" />
+  </head>
+  <body>
+    <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="barra-topo">
+      <div class="interno">
+        <a class="marca" href="denuncias.html">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2.5 4 5.6v6.1c0 4.7 3.3 8.2 8 9.8 4.7-1.6 8-5.1 8-9.8V5.6L12 2.5Z" stroke="#1F5D50" stroke-width="1.6" stroke-linejoin="round" />
+          </svg>
+          <span>Guardião Escolar</span>
+        </a>
+        <p class="usuario"><span id="usuario-nome"></span> <a href="usuarios.html" id="link-usuarios" hidden>Usuários</a> <a href="senha.html">Trocar senha</a> <a href="/api/sessao/sair">Sair</a></p>
+      </div>
+    </header>
+
+    <main class="pagina pagina--admin" id="conteudo">
+      <a class="voltar" href="denuncias.html">&larr; Denúncias</a>
+
+      <h1>Trocar senha</h1>
+      <p class="subtitulo">Use pelo menos 8 caracteres. Uma frase com espaços é mais fácil de lembrar e mais difícil de adivinhar.</p>
+
+      <div class="cartao" style="max-width: 480px">
+        <!-- PUT /api/conta/senha (RF23) -->
+        <form id="form-senha" novalidate>
+          <div class="campo">
+            <label for="senha_atual">Senha atual</label>
+            <input type="password" id="senha_atual" name="senha_atual" required autocomplete="current-password" aria-describedby="erro-senha_atual" />
+            <span class="erro" id="erro-senha_atual"></span>
+          </div>
+
+          <div class="campo">
+            <label for="senha_nova">Nova senha</label>
+            <input type="password" id="senha_nova" name="senha_nova" required minlength="8" autocomplete="new-password" aria-describedby="erro-senha_nova" />
+            <span class="erro" id="erro-senha_nova"></span>
+          </div>
+
+          <div class="campo">
+            <label for="senha_confirmacao">Repita a nova senha</label>
+            <input type="password" id="senha_confirmacao" name="senha_confirmacao" required autocomplete="new-password" aria-describedby="erro-senha_confirmacao" />
+            <span class="erro" id="erro-senha_confirmacao"></span>
+          </div>
+
+          <span class="erro" id="erro-senha" role="alert"></span>
+          <p class="sucesso" id="senha-salva" role="status"></p>
+          <button type="submit" class="botao">Trocar senha</button>
+        </form>
+      </div>
+
+      <footer class="rodape">
+        <p>Trocar a senha desconecta os outros aparelhos em que você estava logado.</p>
+      </footer>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+</html>

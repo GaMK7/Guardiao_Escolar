@@ -6,13 +6,20 @@ const TIPOS = ['bullying', 'cyberbullying', 'assedio', 'ameaca', 'agressao_fisic
 const LOCAIS = ['sala', 'corredor', 'patio', 'quadra', 'banheiro', 'refeitorio', 'entrada', 'internet', 'outro'];
 const VINCULOS = ['aluno', 'professor', 'funcionario', 'responsavel', 'outro'];
 const STATUS = ['recebida', 'analise', 'concluida', 'arquivada'];
+const PERFIS = ['administrador', 'responsavel'];
 const MAX_DESCRICAO = 2000;
 const MAX_PROVIDENCIA = 800;
+const MAX_NOME = 100;
 const MIN_SENHA = 8;
 const MAX_SENHA_BYTES = 72; // o bcrypt ignora o que passar disso
 
 function objeto(corpo) {
   return corpo && typeof corpo === 'object' ? corpo : {};
+}
+
+// Mesma regra do CHECK da tabela administrador.
+function emailValido(email) {
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function hojeEmBrasilia() {
@@ -113,9 +120,55 @@ function validarLogin(corpo) {
   return { dados: { email, senha } };
 }
 
+// Filtros da lista da escola (RF17). Todos opcionais; valor fora da lista é erro, não é ignorado.
+function validarFiltros(consulta) {
+  const entrada = objeto(consulta);
+  const texto = (campo) => (typeof entrada[campo] === 'string' ? entrada[campo].trim() : '');
+  const erros = {};
+
+  const status = texto('status') || null;
+  if (status && !STATUS.includes(status)) erros.status = 'Status desconhecido.';
+  const tipo = texto('tipo') || null;
+  if (tipo && !TIPOS.includes(tipo)) erros.tipo = 'Tipo desconhecido.';
+  const pagina = texto('pagina') || '1';
+  if (!/^[1-9]\d{0,5}$/.test(pagina)) erros.pagina = 'Página inválida.';
+
+  if (Object.keys(erros).length) return { erros };
+  return { dados: { status, tipo, pagina: Number(pagina) } };
+}
+
+// Cadastro de usuário da área da escola (RF22).
+function validarUsuario(corpo) {
+  const entrada = objeto(corpo);
+  const nome = typeof entrada.nome === 'string' ? entrada.nome.trim() : '';
+  const email = typeof entrada.email === 'string' ? entrada.email.trim().toLowerCase() : '';
+  const perfil = typeof entrada.perfil === 'string' ? entrada.perfil.trim() : '';
+  const erros = {};
+
+  if (!nome) erros.nome = 'Digite o nome da pessoa.';
+  else if (nome.length > MAX_NOME) erros.nome = 'O nome pode ter até ' + MAX_NOME + ' caracteres.';
+  if (!email) erros.email = 'Digite o e-mail.';
+  else if (!emailValido(email)) erros.email = 'Digite um e-mail válido, como nome@escola.edu.br.';
+  if (!PERFIS.includes(perfil)) erros.perfil = 'Escolha o perfil.';
+
+  if (Object.keys(erros).length) return { erros };
+  return { dados: { nome, email, perfil } };
+}
+
+// Desativar ou reativar um usuário (RF22): { ativo: true | false }.
+function validarSituacao(corpo) {
+  const ativo = objeto(corpo).ativo;
+  if (typeof ativo !== 'boolean') return { erros: { ativo: 'Informe se o acesso fica ativo (true) ou não (false).' } };
+  return { dados: { ativo } };
+}
+
 // Resposta padrão de dado inválido: 400 { erro, campos }, com uma mensagem por campo.
 function responderInvalido(res, erros) {
   return res.status(400).json({ erro: 'Confira os campos indicados.', campos: erros });
 }
 
-module.exports = { validarDenuncia, validarConsulta, validarAndamento, validarTrocaSenha, validarLogin, responderInvalido };
+module.exports = {
+  TIPOS, STATUS, MAX_NOME, emailValido,
+  validarDenuncia, validarConsulta, validarAndamento, validarTrocaSenha, validarLogin,
+  validarFiltros, validarUsuario, validarSituacao, responderInvalido
+};

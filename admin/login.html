@@ -20,8 +20,9 @@
       <h1>Área da escola</h1>
       <p class="subtitulo">Acesso apenas para responsáveis autorizados pela direção.</p>
 
-      <!-- POST /api/sessao -> cria sessão e redireciona para denuncias.html -->
-      <form action="/api/sessao" method="post">
+      <!-- POST /api/sessao -> cria sessão e vai para denuncias.html. O js/app.js envia por fetch;
+         sem JavaScript, o servidor redireciona e volta com ?erro= quando dá errado. -->
+      <form id="form-login" action="/api/sessao" method="post">
         <div class="campo">
           <label for="email">E-mail</label>
           <input type="email" id="email" name="email" required autocomplete="username" placeholder="coordenacao@escola.edu.br" />
@@ -29,17 +30,16 @@
 
         <div class="campo">
           <label for="senha">Senha</label>
-          <input type="password" id="senha" name="senha" required autocomplete="current-password" minlength="8" />
+          <input type="password" id="senha" name="senha" required autocomplete="current-password" />
         </div>
 
-        <span class="erro" id="erro-login" role="alert">
-          <!-- mensagem genérica de propósito: não revela se o e-mail existe -->
-        </span>
+        <!-- mensagem genérica de propósito: não revela se o e-mail existe -->
+        <span class="erro" id="erro-login" role="alert"></span>
 
         <button type="submit" class="botao">Entrar</button>
       </form>
 
-      <a class="link-discreto" href="#">Esqueci minha senha</a>
+      <p class="link-discreto">Esqueceu a senha? Peça uma senha nova ao administrador do sistema.</p>
 
       <div class="aviso aviso--neutro" style="margin-top: 26px">Não existe autocadastro. Os acessos são criados pelo administrador do sistema a pedido da direção da escola.</div>
 

@@ -43,19 +43,20 @@ async function encerrarSessao(req, res) {
 }
 
 /* Lê o cookie e, se a sessão vale e o usuário está ativo, preenche
-   req.administrador = { id, email, sessao }. Não bloqueia nada sozinho. */
+   req.administrador = { id, email, nome, perfil, sessao }. Não bloqueia nada sozinho. */
 async function carregarSessao(req, res, next) {
   const token = lerToken(req);
   if (!token) return next();
   const { rows } = await banco.query(
-    `SELECT s.id_sessao, a.id_administrador, a.email
+    `SELECT s.id_sessao, a.id_administrador, a.email, a.nome, a.perfil
        FROM guardiao_mer.sessao s
        JOIN guardiao_mer.administrador a ON a.id_administrador = s.administrador_id
       WHERE s.token_hash = $1 AND s.expira_em > now() AND a.ativo`,
     [hashToken(token)]
   );
   if (rows.length) {
-    req.administrador = { id: rows[0].id_administrador, email: rows[0].email, sessao: rows[0].id_sessao };
+    const linha = rows[0];
+    req.administrador = { id: linha.id_administrador, email: linha.email, nome: linha.nome, perfil: linha.perfil, sessao: linha.id_sessao };
   }
   next();
 }
@@ -66,4 +67,10 @@ function exigirLogin(req, res, next) {
   res.status(401).json({ erro: 'Faça login para continuar.' });
 }
 
-module.exports = { criarSessao, encerrarSessao, carregarSessao, exigirLogin };
+// Cadastro e desativação de usuários (RF22): só o perfil administrador. Use depois de exigirLogin.
+function exigirAdministrador(req, res, next) {
+  if (req.administrador && req.administrador.perfil === 'administrador') return next();
+  res.status(403).json({ erro: 'Só o administrador do sistema pode fazer isso.' });
+}
+
+module.exports = { criarSessao, encerrarSessao, carregarSessao, exigirLogin, exigirAdministrador };

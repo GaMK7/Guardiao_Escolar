@@ -11,7 +11,7 @@ const PAGINA_LOGIN = '/admin/login.html';
 const PAGINA_INICIAL = '/denuncias.html';
 
 /* POST /api/sessao — entra com { email, senha }.
-   Pedido JSON: 201 { email }, 400, 401 ou 429.
+   Pedido JSON: 201 { nome, email, perfil }, 400, 401 ou 429.
    Formulário do admin/login.html (sem JavaScript): redireciona para a lista,
    ou de volta ao login com ?erro=credenciais ou ?erro=tentativas.
    A mensagem de erro é sempre a mesma, para não revelar se o e-mail existe. */
@@ -32,7 +32,7 @@ rotas.post('/', async function (req, res) {
   }
 
   const { rows } = await banco.query(
-    'SELECT id_administrador, senha_hash FROM guardiao_mer.administrador WHERE email = $1 AND ativo',
+    'SELECT id_administrador, senha_hash, nome, perfil FROM guardiao_mer.administrador WHERE email = $1 AND ativo',
     [dados.email]
   );
   // Confere a senha mesmo sem usuário, para a resposta demorar o mesmo tanto.
@@ -45,13 +45,14 @@ rotas.post('/', async function (req, res) {
   limparFalhas(dados.email);
   await criarSessao(res, rows[0].id_administrador);
   if (formulario) return res.redirect(303, PAGINA_INICIAL);
-  res.status(201).json({ email: dados.email });
+  res.status(201).json({ nome: rows[0].nome, email: dados.email, perfil: rows[0].perfil });
 });
 
-/* GET /api/sessao — quem está logado. Serve para as telas da escola
-   saberem se mostram a página ou mandam para o login. Resposta: 200 { email } ou 401. */
+/* GET /api/sessao — quem está logado. Serve para as telas da escola mostrarem o nome
+   e saberem se mandam para o login. Resposta: 200 { nome, email, perfil } ou 401. */
 rotas.get('/', exigirLogin, function (req, res) {
-  res.json({ email: req.administrador.email });
+  const { nome, email, perfil } = req.administrador;
+  res.json({ nome, email, perfil });
 });
 
 // DELETE /api/sessao — sai. Resposta: 204, mesmo se já não havia sessão.

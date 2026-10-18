@@ -14,14 +14,19 @@ CREATE TABLE IF NOT EXISTS guardiao_mer.denunciante (
     classificacao VARCHAR(20) NOT NULL
         CHECK (classificacao IN ('professor','aluno','responsavel','funcionario','outro'))
 );
--- Guarda o acesso do administrador.
+-- Guarda os usuários da área da escola. Perfil "administrador" também cadastra
+-- e desativa usuários (RF22); "responsavel" trata as denúncias.
 CREATE TABLE IF NOT EXISTS guardiao_mer.administrador (
     id_administrador BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR(254) NOT NULL UNIQUE
         CHECK (email = lower(trim(email)) AND email ~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$'),
     senha_hash TEXT NOT NULL
         CHECK (senha_hash ~ '^\$2[aby]\$(0[4-9]|[12][0-9]|3[01])\$[./A-Za-z0-9]{53}$'),
-    ativo BOOLEAN NOT NULL DEFAULT TRUE
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    nome VARCHAR(100) NOT NULL CHECK (nome ~ '[^[:space:]]'),
+    perfil VARCHAR(20) NOT NULL DEFAULT 'responsavel'
+        CHECK (perfil IN ('administrador','responsavel')),
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 -- Guarda denúncia, protocolo, token e status atual.
 CREATE TABLE IF NOT EXISTS guardiao_mer.registro (
@@ -81,8 +86,28 @@ ALTER TABLE guardiao_mer.registro ADD COLUMN IF NOT EXISTS protocolo VARCHAR(20)
 UPDATE guardiao_mer.registro SET protocolo = guardiao_mer.montar_protocolo(id_registro, criado_em)
     WHERE protocolo IS NULL;
 ALTER TABLE guardiao_mer.registro ALTER COLUMN protocolo SET NOT NULL;
+-- Usuários de antes ganham nome (a parte do e-mail antes do @, até alguém trocar) e perfil.
+ALTER TABLE guardiao_mer.administrador ADD COLUMN IF NOT EXISTS nome VARCHAR(100);
+UPDATE guardiao_mer.administrador SET nome = left(split_part(email, '@', 1), 100) WHERE nome IS NULL;
+ALTER TABLE guardiao_mer.administrador ALTER COLUMN nome SET NOT NULL;
+ALTER TABLE guardiao_mer.administrador ADD COLUMN IF NOT EXISTS perfil VARCHAR(20);
+-- Quem já tinha acesso foi criado pelo npm run criar-admin, então é administrador.
+UPDATE guardiao_mer.administrador SET perfil = 'administrador' WHERE perfil IS NULL;
+ALTER TABLE guardiao_mer.administrador ALTER COLUMN perfil SET NOT NULL;
+ALTER TABLE guardiao_mer.administrador ALTER COLUMN perfil SET DEFAULT 'responsavel';
+ALTER TABLE guardiao_mer.administrador ADD COLUMN IF NOT EXISTS criado_em TIMESTAMPTZ NOT NULL DEFAULT now();
 DO $migrar$
 BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'administrador_nome_check'
+                   AND conrelid = 'guardiao_mer.administrador'::regclass) THEN
+        ALTER TABLE guardiao_mer.administrador ADD CONSTRAINT administrador_nome_check
+            CHECK (nome ~ '[^[:space:]]');
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'administrador_perfil_check'
+                   AND conrelid = 'guardiao_mer.administrador'::regclass) THEN
+        ALTER TABLE guardiao_mer.administrador ADD CONSTRAINT administrador_perfil_check
+            CHECK (perfil IN ('administrador','responsavel'));
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'registro_protocolo_key'
                    AND conrelid = 'guardiao_mer.registro'::regclass) THEN
         ALTER TABLE guardiao_mer.registro ADD CONSTRAINT registro_protocolo_key UNIQUE (protocolo);
@@ -112,6 +137,9 @@ BEGIN
         ('administrador','email','character varying(254)',true,'',''),
         ('administrador','senha_hash','text',true,'',''),
         ('administrador','ativo','boolean',true,'','true'),
+        ('administrador','nome','character varying(100)',true,'',''),
+        ('administrador','perfil','character varying(20)',true,'','''responsavel''::character varying'),
+        ('administrador','criado_em','timestamp with time zone',true,'','now()'),
         ('denunciante','id_denunciante','bigint',true,'a',''),
         ('denunciante','classificacao','character varying(20)',true,'',''),
         ('registro','id_registro','bigint',true,'a',''),
@@ -153,6 +181,8 @@ BEGIN
         WITH esperado(tabela,regra) AS (VALUES
         ('administrador','CHECK ((((email)::text = lower(TRIM(BOTH FROM email))) AND ((email)::text ~ ''^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$''::text)))'),
         ('administrador','CHECK ((senha_hash ~ ''^\$2[aby]\$(0[4-9]|[12][0-9]|3[01])\$[./A-Za-z0-9]{53}$''::text))'),
+        ('administrador','CHECK (((nome)::text ~ ''[^[:space:]]''::text))'),
+        ('administrador','CHECK (((perfil)::text = ANY ((ARRAY[''administrador''::character varying, ''responsavel''::character varying])::text[])))'),
         ('administrador','PRIMARY KEY (id_administrador)'),
         ('administrador','UNIQUE (email)'),
         ('denunciante','CHECK (((classificacao)::text = ANY ((ARRAY[''professor''::character varying, ''aluno''::character varying, ''responsavel''::character varying, ''funcionario''::character varying, ''outro''::character varying])::text[])))'),
@@ -333,7 +363,7 @@ LANGUAGE sql STABLE SET search_path = pg_catalog, guardiao_mer, pg_temp AS $$
     ORDER BY a.criado_em, a.id_andamento;
 $$;
 
--- Detalhe completo para a escola (RF18): uma linha por andamento, com o autor.
+-- Detalhe completo para a escola (RF18): uma linha por andamento, com o nome do autor.
 CREATE OR REPLACE FUNCTION guardiao_mer.detalhar_registro(p_protocolo TEXT)
 RETURNS TABLE (protocolo TEXT, tipo TEXT, status TEXT, descricao TEXT, data_ocorrencia TEXT,
                local TEXT, vinculo TEXT, criado_em TIMESTAMPTZ, andamento_status TEXT,
@@ -341,7 +371,7 @@ RETURNS TABLE (protocolo TEXT, tipo TEXT, status TEXT, descricao TEXT, data_ocor
 LANGUAGE sql STABLE SET search_path = pg_catalog, guardiao_mer, pg_temp AS $$
     SELECT r.protocolo::TEXT, r.tipo_ocorrencia::TEXT, r.status::TEXT, r.descricao::TEXT,
            to_char(r.data_ocorrencia, 'YYYY-MM-DD'), r.local::TEXT, d.classificacao::TEXT, r.criado_em,
-           a.status_novo::TEXT, a.providencia::TEXT, a.criado_em, adm.email::TEXT
+           a.status_novo::TEXT, a.providencia::TEXT, a.criado_em, adm.nome::TEXT
     FROM guardiao_mer.registro r
     LEFT JOIN guardiao_mer.denunciante d ON d.id_denunciante = r.denunciante_id
     LEFT JOIN guardiao_mer.andamento a ON a.registro_id = r.id_registro
@@ -360,7 +390,7 @@ CREATE OR REPLACE FUNCTION guardiao_mer.registrar_andamento(
 LANGUAGE plpgsql SET search_path = pg_catalog, guardiao_mer, pg_temp AS $$
 DECLARE v_registro BIGINT; v_status TEXT; v_autor TEXT;
 BEGIN
-    SELECT adm.email INTO v_autor FROM guardiao_mer.administrador adm
+    SELECT adm.nome INTO v_autor FROM guardiao_mer.administrador adm
     WHERE adm.id_administrador = p_administrador AND adm.ativo;
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Administrador inexistente ou inativo.' USING ERRCODE = '42501';
@@ -383,7 +413,7 @@ BEGIN
 END;
 $$;
 
--- Conta denúncias por tipo e status.
+-- Conta denúncias por tipo e status (RF21).
 CREATE OR REPLACE VIEW guardiao_mer.resumo_registros AS
 SELECT tipo_ocorrencia, status, count(*) AS quantidade
 FROM guardiao_mer.registro GROUP BY tipo_ocorrencia, status;
