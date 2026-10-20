@@ -16,11 +16,12 @@
       <h1>Acompanhar denúncia</h1>
       <p class="subtitulo">Digite o código que você recebeu quando enviou a denúncia.</p>
 
-      <!-- POST /api/denuncias/consulta  ->  devolve a página de andamento -->
-      <form action="andamento.html" method="get">
+      <!-- js/app.js envia o código por POST /api/denuncias/consulta (no corpo, nunca na URL)
+         e abre andamento.html com o resultado. -->
+      <form id="form-consulta" action="/api/denuncias/consulta" method="post" novalidate>
         <div class="campo">
           <label for="codigo">Código de acompanhamento</label>
-          <input type="text" id="codigo" name="codigo" required maxlength="9" autocomplete="off" spellcheck="false" placeholder="0000-0000" style="text-align: center; font-size: 22px; letter-spacing: 0.14em" data-formato-codigo />
+          <input type="text" id="codigo" name="codigo" required maxlength="9" autocomplete="off" spellcheck="false" placeholder="0000-0000" aria-describedby="erro-codigo" style="text-align: center; font-size: 22px; letter-spacing: 0.14em" data-formato-codigo />
           <span class="erro" id="erro-codigo" role="alert"></span>
         </div>
 

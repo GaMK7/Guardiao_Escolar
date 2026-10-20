@@ -1,0 +1,25 @@
+{
+  "name": "guardiao-escolar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aplicação web para registro de denúncias de ocorrências escolares",
+  "main": "servidor/index.js",
+  "scripts": {
+    "start": "node servidor/index.js",
+    "dev": "node --watch servidor/index.js",
+    "criar-admin": "node servidor/criar-admin.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.3.0",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
+    "@electric-sql/pglite-socket": "^0.2.13"
+  }
+}

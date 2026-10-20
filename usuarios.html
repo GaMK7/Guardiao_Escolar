@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Usuários — Guardião Escolar</title>
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+    <link rel="stylesheet" href="css/estilo.css" />
+  </head>
+  <body>
+    <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="barra-topo">
+      <div class="interno">
+        <a class="marca" href="denuncias.html">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2.5 4 5.6v6.1c0 4.7 3.3 8.2 8 9.8 4.7-1.6 8-5.1 8-9.8V5.6L12 2.5Z" stroke="#1F5D50" stroke-width="1.6" stroke-linejoin="round" />
+          </svg>
+          <span>Guardião Escolar</span>
+        </a>
+        <p class="usuario"><span id="usuario-nome"></span> <a href="usuarios.html" id="link-usuarios" hidden>Usuários</a> <a href="senha.html">Trocar senha</a> <a href="/api/sessao/sair">Sair</a></p>
+      </div>
+    </header>
+
+    <main class="pagina pagina--admin" id="conteudo">
+      <a class="voltar" href="denuncias.html">&larr; Denúncias</a>
+
+      <h1>Usuários da área da escola</h1>
+      <p class="subtitulo">Cadastre quem vai tratar as denúncias e desative quem não deve mais ter acesso.</p>
+
+      <div class="aviso aviso--neutro" id="usuarios-proibido" hidden>
+        <strong>Só o administrador do sistema acessa esta página.</strong>
+        Se precisa cadastrar alguém, fale com ele.
+      </div>
+      <p class="erro" id="usuarios-mensagem" role="alert"></p>
+
+      <!-- Preenchido por js/admin.js com GET /api/usuarios -->
+      <div id="usuarios-conteudo" hidden>
+
+        <div class="caixa-codigo" id="senha-gerada" hidden>
+          <small id="senha-gerada-para"></small>
+          <strong id="senha-gerada-valor"></strong>
+          <button type="button" class="botao botao--secundario botao--curto" data-copiar="#senha-gerada-valor" data-copiado="Senha copiada" style="margin-top: 12px">Copiar senha</button>
+          <p class="ajuda">Anote agora: ela não aparece de novo. Entregue à pessoa em particular e peça para ela trocar a senha no primeiro acesso, em "Trocar senha".</p>
+        </div>
+
+        <div class="colunas-admin">
+          <section>
+            <div class="tabela-rolagem">
+              <table id="tabela-usuarios">
+                <thead>
+                  <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">E-mail</th>
+                    <th scope="col">Perfil</th>
+                    <th scope="col">Situação</th>
+                    <th scope="col"><span class="oculto-visual">Ações</span></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <p class="ajuda">Ninguém é excluído: quem é desativado continua com o nome no histórico das denúncias que atualizou.</p>
+          </section>
+
+          <section>
+            <div class="cartao">
+              <h2>Cadastrar acesso</h2>
+
+              <!-- POST /api/usuarios -->
+              <form id="form-usuario" novalidate>
+                <div class="campo">
+                  <label for="nome">Nome</label>
+                  <input type="text" id="nome" name="nome" maxlength="100" required autocomplete="off" aria-describedby="erro-nome" />
+                  <span class="erro" id="erro-nome"></span>
+                </div>
+
+                <div class="campo">
+                  <label for="email">E-mail</label>
+                  <input type="email" id="email" name="email" maxlength="254" required autocomplete="off" placeholder="nome@escola.edu.br" aria-describedby="erro-email" />
+                  <span class="erro" id="erro-email"></span>
+                </div>
+
+                <div class="campo">
+                  <label for="perfil">Perfil</label>
+                  <select id="perfil" name="perfil" aria-describedby="ajuda-perfil">
+                    <option value="responsavel">Responsável escolar</option>
+                    <option value="administrador">Administrador</option>
+                  </select>
+                  <span class="ajuda" id="ajuda-perfil">Os dois tratam as denúncias. O administrador também cadastra e desativa usuários.</span>
+                  <span class="erro" id="erro-perfil"></span>
+                </div>
+
+                <span class="erro" id="erro-cadastro" role="alert"></span>
+                <button type="submit" class="botao">Cadastrar e gerar senha</button>
+              </form>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="rodape">
+        <p>Não existe autocadastro. Os acessos são criados aqui, a pedido da direção da escola.</p>
+      </footer>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+</html>

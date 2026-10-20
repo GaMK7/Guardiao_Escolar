@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
-    <title>Denúncia 2026-0148 — Guardião Escolar</title>
+    <title>Denúncia — Guardião Escolar</title>
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
-    <link rel="stylesheet" href="../css/estilo.css" />
+    <link rel="stylesheet" href="css/estilo.css" />
   </head>
   <body>
     <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
@@ -19,71 +19,70 @@
           </svg>
           <span>Guardião Escolar</span>
         </a>
-        <p class="usuario">Ana Paula <a href="/api/sessao/sair">Sair</a></p>
+        <p class="usuario"><span id="usuario-nome"></span> <a href="usuarios.html" id="link-usuarios" hidden>Usuários</a> <a href="senha.html">Trocar senha</a> <a href="/api/sessao/sair">Sair</a></p>
       </div>
     </header>
 
     <main class="pagina pagina--admin" id="conteudo">
       <a class="voltar" href="denuncias.html">&larr; Todas as denúncias</a>
 
-      <!-- GET /api/denuncias/2026-0148 -->
-      <h1 class="numero">Denúncia 2026-0148</h1>
-
-      <div class="cabecalho-caso">
-        <span class="etiqueta etiqueta--analise">Em análise</span>
-        <span class="etiqueta etiqueta--anonima">Anônima</span>
-        <span class="meta">Cyberbullying · ocorrida em 12/03/2026 · Internet · relato de aluno</span>
+      <div class="aviso aviso--neutro" id="detalhe-ausente" hidden>
+        <strong>Denúncia não encontrada.</strong>
+        Confira o protocolo ou volte para a lista.
       </div>
+      <div class="aviso" id="detalhe-falha" role="alert" hidden></div>
 
-      <div class="colunas-admin">
-        <!-- ---------------------------------------- coluna esquerda -->
-        <section>
-          <h2>Relato</h2>
-          <p class="relato">Criaram um grupo no aplicativo só para tirar print das minhas mensagens e rir. Já falei para parar e continuou. Tem gente da minha sala e de outra turma.</p>
+      <!-- Preenchido por js/admin.js com GET /api/denuncias/:protocolo -->
+      <div id="detalhe" hidden>
+        <h1 class="numero" id="detalhe-titulo"></h1>
 
-          <h2 style="margin-top: 26px">Histórico</h2>
-          <ol class="linha-tempo">
-            <li>
-              <strong>Recebida</strong>
-              <time datetime="2026-03-12T14:20">12/03 às 14h20 · registro automático</time>
-            </li>
-            <li>
-              <strong>Em análise</strong>
-              <time datetime="2026-03-13T09:05">13/03 às 09h05 · Ana Paula</time>
-              <p>A coordenação já está conversando com as turmas envolvidas. Vamos retornar até sexta-feira.</p>
-            </li>
-          </ol>
-        </section>
+        <div class="cabecalho-caso">
+          <span id="detalhe-status"></span>
+          <span class="etiqueta etiqueta--anonima">Anônima</span>
+          <span class="meta" id="detalhe-meta"></span>
+        </div>
 
-        <!-- ---------------------------------------- coluna direita -->
-        <section>
-          <div class="cartao">
-            <h2>Atualizar andamento</h2>
+        <div class="colunas-admin">
+          <!-- ---------------------------------------- coluna esquerda -->
+          <section>
+            <h2>Relato</h2>
+            <p class="relato" id="detalhe-relato"></p>
 
-            <!-- POST /api/denuncias/2026-0148/andamentos -->
-            <form action="/api/denuncias/2026-0148/andamentos" method="post">
-              <div class="campo">
-                <label for="status">Novo status</label>
-                <select id="status" name="status" required>
-                  <option value="recebida">Recebida</option>
-                  <option value="analise" selected>Em análise</option>
-                  <option value="concluida">Concluída</option>
-                  <option value="arquivada">Arquivada</option>
-                </select>
-              </div>
+            <h2 style="margin-top: 26px">Histórico</h2>
+            <ol class="linha-tempo" id="detalhe-historico"></ol>
+          </section>
 
-              <div class="campo">
-                <label for="providencia">O que foi feito</label>
-                <textarea id="providencia" name="providencia" maxlength="800" required placeholder="Descreva a providência adotada."></textarea>
-                <span class="ajuda">Este texto aparece para quem fez a denúncia. Não escreva nomes de alunos nem informações que possam identificar terceiros.</span>
-              </div>
+          <!-- ---------------------------------------- coluna direita -->
+          <section>
+            <div class="cartao">
+              <h2>Atualizar andamento</h2>
 
-              <button type="submit" class="botao">Salvar atualização</button>
-            </form>
-          </div>
+              <!-- POST /api/denuncias/:protocolo/andamentos -->
+              <form id="form-andamento" novalidate>
+                <div class="campo">
+                  <label for="status">Novo status</label>
+                  <select id="status" name="status" required aria-describedby="ajuda-status"></select>
+                  <span class="ajuda" id="ajuda-status"></span>
+                  <span class="erro" id="erro-status"></span>
+                </div>
 
-          <div class="aviso aviso--neutro">Denúncias não são excluídas. Para encerrar um caso sem providência, use o status <strong>Arquivada</strong> e explique o motivo no campo acima.</div>
-        </section>
+                <div class="campo">
+                  <label for="providencia">O que foi feito</label>
+                  <textarea id="providencia" name="providencia" maxlength="800" required placeholder="Descreva a providência adotada." aria-describedby="aviso-providencia" data-contador="#contador-providencia"></textarea>
+                  <span class="ajuda" id="aviso-providencia">Este texto aparece para quem fez a denúncia. Não escreva nomes de alunos nem informações que possam identificar terceiros.</span>
+                  <span class="ajuda" id="contador-providencia" aria-live="polite"></span>
+                  <span class="erro" id="erro-providencia"></span>
+                </div>
+
+                <span class="erro" id="erro-andamento" role="alert"></span>
+                <p class="sucesso" id="andamento-salvo" role="status"></p>
+                <button type="submit" class="botao">Salvar atualização</button>
+              </form>
+            </div>
+
+            <div class="aviso aviso--neutro">Denúncias não são excluídas. Para encerrar um caso sem providência, use o status <strong>Arquivada</strong> e explique o motivo no campo acima.</div>
+          </section>
+        </div>
       </div>
 
       <footer class="rodape">
@@ -92,5 +91,6 @@
     </main>
 
     <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
   </body>
 </html>

@@ -50,24 +50,27 @@
             <label for="tipo-outro">Outro</label>
           </div>
           <span class="ajuda">Se não souber qual escolher, marque "Outro" e explique abaixo.</span>
+          <span class="erro" id="erro-tipo"></span>
         </fieldset>
 
         <!-- ---------------------------------------- relato (RF04) -->
         <div class="campo">
           <label for="descricao">Conte com as suas palavras <span class="obrigatorio">*</span></label>
-          <textarea id="descricao" name="descricao" maxlength="2000" required placeholder="Não precisa ser perfeito. Escreva o que você lembra: o que aconteceu, quem estava junto, se já aconteceu antes." data-contador="#contador-descricao"></textarea>
+          <textarea id="descricao" name="descricao" maxlength="2000" required aria-describedby="erro-descricao" placeholder="Não precisa ser perfeito. Escreva o que você lembra: o que aconteceu, quem estava junto, se já aconteceu antes." data-contador="#contador-descricao"></textarea>
           <span class="ajuda" id="contador-descricao" aria-live="polite"></span>
+          <span class="erro" id="erro-descricao"></span>
         </div>
 
         <!-- ---------------------------------------- quando e onde (RF05) -->
         <div class="duas-colunas">
           <div class="campo">
             <label for="data_ocorrencia">Quando aconteceu <span class="obrigatorio">*</span></label>
-            <input type="date" id="data_ocorrencia" name="data_ocorrencia" required />
+            <input type="date" id="data_ocorrencia" name="data_ocorrencia" required aria-describedby="erro-data_ocorrencia" />
+            <span class="erro" id="erro-data_ocorrencia"></span>
           </div>
           <div class="campo">
             <label for="local">Onde aconteceu <span class="obrigatorio">*</span></label>
-            <select id="local" name="local" required>
+            <select id="local" name="local" required aria-describedby="erro-local">
               <option value="">Escolha um local</option>
               <option value="sala">Sala de aula</option>
               <option value="corredor">Corredor</option>
@@ -79,13 +82,14 @@
               <option value="internet">Internet ou aplicativo de mensagem</option>
               <option value="outro">Outro lugar</option>
             </select>
+            <span class="erro" id="erro-local"></span>
           </div>
         </div>
 
         <!-- ---------------------------------------- vínculo (RF10) -->
         <div class="campo">
           <label for="vinculo">Qual é a sua relação com a escola?</label>
-          <select id="vinculo" name="vinculo">
+          <select id="vinculo" name="vinculo" aria-describedby="erro-vinculo">
             <option value="">Prefiro não dizer</option>
             <option value="aluno">Aluno</option>
             <option value="professor">Professor</option>
@@ -94,38 +98,15 @@
             <option value="outro">Outro</option>
           </select>
           <span class="ajuda">Isso ajuda a escola a entender o contexto e não identifica você.</span>
+          <span class="erro" id="erro-vinculo"></span>
         </div>
 
-        <!-- ---------------------------------------- identificação (RF02) -->
-        <fieldset class="grupo">
-          <legend>Você quer se identificar?</legend>
-
-          <label class="opcao">
-            <input type="radio" name="identificacao" value="anonima" checked />
-            <span>
-              <strong>Não, prefiro ficar anônimo</strong>
-              <span>A escola não terá como saber quem enviou. Nem nós.</span>
-            </span>
-          </label>
-
-          <label class="opcao">
-            <input type="radio" name="identificacao" value="identificada" />
-            <span>
-              <strong>Sim, quero me identificar</strong>
-              <span>Só a equipe autorizada verá o seu nome.</span>
-            </span>
-          </label>
-        </fieldset>
-
-        <!-- campos visíveis apenas quando a pessoa escolhe se identificar -->
-        <div class="campo" id="dados-contato" hidden>
-          <label for="nome">Seu nome</label>
-          <input type="text" id="nome" name="nome" autocomplete="name" />
-          <label for="contato" style="margin-top: 12px">E-mail ou telefone</label>
-          <input type="text" id="contato" name="contato" />
+        <!-- ---------------------------------------- privacidade (RN02, RNF05, RNF06)
+           Toda denúncia é anônima: decisão da equipe, por isso não há campos de nome ou contato. -->
+        <div class="aviso aviso--neutro">
+          <strong>Sua denúncia é anônima.</strong>
+          Guardamos só o que está neste formulário: o tipo, o relato, a data, o local e, se você quiser, a sua relação com a escola. Não guardamos nome, contato nem endereço de internet. Só a equipe autorizada pela direção da escola lê as denúncias, conforme a LGPD.
         </div>
-
-        <div class="aviso aviso--neutro">Guardamos só o necessário para tratar a denúncia, conforme a LGPD. Denúncias anônimas não registram nome, contato nem endereço de internet.</div>
 
         <span class="erro" id="erro-envio" role="alert" aria-live="assertive"></span>
         <button type="submit" class="botao">Enviar denúncia</button>
@@ -137,14 +118,5 @@
     </main>
 
     <script src="js/app.js"></script>
-    <script>
-      // mostra os campos de contato só quando a denúncia é identificada
-      var bloco = document.getElementById("dados-contato");
-      document.querySelectorAll('input[name="identificacao"]').forEach(function (opcao) {
-        opcao.addEventListener("change", function () {
-          bloco.hidden = opcao.value !== "identificada";
-        });
-      });
-    </script>
   </body>
 </html>
