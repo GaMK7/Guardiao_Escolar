@@ -45,16 +45,15 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Sem logger de requisições: denúncia anônima não pode deixar IP registrado (RN02).
-app.use(express.json({ limit: '10kb' }));
-// Envio de formulário sem JavaScript (login e denúncia).
-app.use(express.urlencoded({ extended: false, limit: '10kb' }));
-
 // Respostas da API têm dados pessoais ou o código de acompanhamento: nenhum cache guarda.
 app.use('/api', function (req, res, next) {
   res.set('Cache-Control', 'no-store');
   next();
 });
+// O no-store também deve alcançar erros de JSON e de tamanho do corpo.
+// Sem logger de requisições: denúncia anônima não pode deixar IP registrado (RN02).
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 // Identifica quem está logado; cada rota da escola exige isso com exigirLogin (RNF07).
 app.use('/api', carregarSessao);
 app.use('/api/sessao', rotasSessao);
