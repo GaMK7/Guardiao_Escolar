@@ -126,7 +126,12 @@ var GE = (function () {
     }
     try {
       var resposta = await fetch(url, opcoes);
-      var corpo = resposta.status === 204 ? {} : await resposta.json().catch(function () { return {}; });
+      // Uma hospedagem estática pode devolver HTML com status 200 para /api.
+      // JSON inválido deve seguir o fluxo de erro, nunca simular um envio bem-sucedido.
+      var corpo = resposta.status === 204 ? {} : await resposta.json();
+      if (!corpo || typeof corpo !== 'object' || Array.isArray(corpo)) {
+        return { status: 0, corpo: {} };
+      }
       return { status: resposta.status, corpo: corpo };
     } catch (e) {
       return { status: 0, corpo: {} };
