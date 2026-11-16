@@ -592,6 +592,7 @@ textarea:invalid:not(:placeholder-shown) {
 }
 
 .tabela-rolagem {
+  position: relative;
   overflow-x: auto;
   background: var(--superficie);
   border: 1px solid var(--borda-fraca);
@@ -670,6 +671,10 @@ tbody tr:hover {
   grid-template-columns: 1.4fr 1fr;
   gap: 24px;
   align-items: start;
+}
+/* A largura mínima da tabela não deve alargar a coluna nem os formulários no celular. */
+.colunas-admin > * {
+  min-width: 0;
 }
 @media (max-width: 800px) {
   .colunas-admin {
@@ -763,11 +768,11 @@ tbody tr:hover {
    ========================================================================== */
 
 body.pagina-inicio {
-  height: 100svh;
+  height: auto;
   min-height: 100svh;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  overflow: hidden;
+  grid-template-rows: auto 1fr auto;
+  overflow-y: auto;
   color: #173229;
 }
 
@@ -820,7 +825,6 @@ body.pagina-inicio .palco {
 
 body.pagina-inicio .painel-vidro {
   width: min(1040px, 100%);
-  max-height: 100%;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.86) 100%);
   border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 26px;

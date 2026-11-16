@@ -50,7 +50,7 @@ Se ninguém mais consegue entrar (senha esquecida, administrador desativado), ro
 npm test
 ```
 
-São 48 testes automáticos, organizados pelos requisitos do escopo: registro, validação, consulta pública, login, lista e contagem, andamento, usuários, troca de senha, segurança e HTTPS. Rodam num PostgreSQL em memória (PGlite), sem precisar do Neon nem do `.env`. Estão em [testes/](testes/).
+São 57 testes automáticos, organizados pelos requisitos do escopo: registro, validação, consulta pública, login, lista e contagem, andamento, usuários, troca de senha, segurança e HTTPS. Rodam num PostgreSQL em memória (PGlite), sem precisar do Neon nem do `.env`. Estão em [testes/](testes/).
 
 ## Produção e HTTPS (RNF01)
 
@@ -159,3 +159,11 @@ O login também aceita o formulário sem JavaScript: em vez de JSON, redireciona
 | RNF01 | `servidor/app.js` (redirecionamento, HSTS) e cookie `Secure` em produção |
 | RNF03–RNF05 | `servidor/validacao.js`, consultas parametrizadas, formulário só com o necessário |
 | RNF15–RNF17 | este README, `.env.example` e `.gitignore`, códigos HTTP da tabela acima |
+
+## Acesso em celular tablet e computador
+
+O sistema deve ser aberto pelo endereço HTTP ou HTTPS do servidor Node.js. Distribuir um HTML pelo WhatsApp, abrir um endereço file:// ou content:// ou publicar somente as páginas em hospedagem estática não executa a API nem o banco. As telas, CSS, JavaScript e /api devem estar disponíveis na mesma origem, conforme a estrutura deste projeto.
+
+Para produção, publique a aplicação Node.js com PostgreSQL e um endereço HTTPS acessível aos dispositivos. O endereço 127.0.0.1 aponta para o próprio dispositivo; não permite que um tablet acesse o servidor do computador. Testar por Wi-Fi exige um endereço da rede local, servidor acessível por essa rede e configuração apropriada de acesso. Nenhuma publicação é feita automaticamente ao baixar este repositório.
+
+A suíte inclui testes dos arquivos públicos, tipos de conteúdo, login sem JavaScript, erros da API e tratamento de resposta inválida no cliente. Alterar o User-Agent em um teste de API não substitui a validação em navegadores e aparelhos reais.
