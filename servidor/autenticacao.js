@@ -17,12 +17,53 @@ function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
-function lerToken(req) {
+function lerCookie(req, nomeProcurado, formato) {
   for (const parte of (req.headers.cookie || '').split(';')) {
     const [nome, valor] = parte.trim().split('=');
-    if (nome === NOME_COOKIE && FORMATO_TOKEN.test(valor || '')) return valor;
+    if (nome === nomeProcurado && formato.test(valor || '')) return valor;
   }
   return null;
+}
+
+function lerToken(req) {
+  return lerCookie(req, NOME_COOKIE, FORMATO_TOKEN);
+}
+
+/* ------------------------------------------------- cookie de aparelho (limite de login)
+   Depois de um login certo, o navegador guarda "<id>.<assinatura>". A assinatura liga o id
+   ao e-mail, sem o e-mail aparecer no cookie. Ele não dá acesso a nada: só diz que essa
+   pessoa já entrou por este navegador, que então não fica preso quando alguém erra a
+   senha dela de propósito para bloquear a conta (veja servidor/limite.js). */
+const NOME_COOKIE_APARELHO = 'ge_aparelho';
+const DURACAO_APARELHO_DIAS = 180;
+const FORMATO_APARELHO = /^[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{43}$/;
+
+// Chave própria, derivada da CODIGO_SEGREDO: não exige variável nova e não se confunde com o HMAC dos códigos.
+let chaveAparelho = null;
+function assinarAparelho(id, email) {
+  if (!chaveAparelho) {
+    chaveAparelho = Buffer.from(crypto.hkdfSync('sha256', process.env.CODIGO_SEGREDO, '', 'guardiao-escolar/aparelho', 32));
+  }
+  return crypto.createHmac('sha256', chaveAparelho).update(id + '\n' + email).digest('base64url');
+}
+
+// Só vai para /api/sessao, onde é usado.
+function opcoesCookieAparelho() {
+  return { ...opcoesCookie(), path: '/api/sessao', maxAge: DURACAO_APARELHO_DIAS * 24 * 60 * 60 * 1000 };
+}
+
+function lembrarAparelho(res, email) {
+  const id = crypto.randomBytes(16).toString('base64url');
+  res.cookie(NOME_COOKIE_APARELHO, id + '.' + assinarAparelho(id, email), opcoesCookieAparelho());
+}
+
+// O id do aparelho, se o cookie é válido para este e-mail; senão, null.
+function aparelhoConhecido(req, email) {
+  const valor = lerCookie(req, NOME_COOKIE_APARELHO, FORMATO_APARELHO);
+  if (!valor) return null;
+  const [id, assinatura] = valor.split('.');
+  const confere = crypto.timingSafeEqual(Buffer.from(assinatura), Buffer.from(assinarAparelho(id, email)));
+  return confere ? id : null;
 }
 
 async function criarSessao(res, idAdministrador) {
@@ -73,4 +114,7 @@ function exigirAdministrador(req, res, next) {
   res.status(403).json({ erro: 'Só o administrador do sistema pode fazer isso.' });
 }
 
-module.exports = { criarSessao, encerrarSessao, carregarSessao, exigirLogin, exigirAdministrador };
+module.exports = {
+  criarSessao, encerrarSessao, carregarSessao, exigirLogin, exigirAdministrador,
+  lembrarAparelho, aparelhoConhecido
+};

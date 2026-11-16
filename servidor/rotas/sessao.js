@@ -1,8 +1,8 @@
 /* Rotas de /api/sessao: login e saída da área da escola (RF14). */
 const express = require('express');
 const banco = require('../banco');
-const { criarSessao, encerrarSessao, exigirLogin } = require('../autenticacao');
-const { segundosBloqueado, registrarFalha, limparFalhas } = require('../limite');
+const { criarSessao, encerrarSessao, exigirLogin, lembrarAparelho, aparelhoConhecido } = require('../autenticacao');
+const { chaveDaOrigem, reservarLogin } = require('../limite');
 const { conferirSenha } = require('../senha');
 const { validarLogin, responderInvalido } = require('../validacao');
 
@@ -25,9 +25,14 @@ rotas.post('/', async function (req, res) {
   const { dados, erros } = validarLogin(req.body);
   if (erros) return formulario ? res.redirect(303, PAGINA_LOGIN + '?erro=credenciais') : responderInvalido(res, erros);
 
-  const espera = segundosBloqueado(dados.email);
-  if (espera) {
-    res.set('Retry-After', String(espera));
+  // A tentativa conta já aqui, antes do bcrypt: pedidos simultâneos não passam juntos pelo limite.
+  const tentativa = reservarLogin({
+    email: dados.email,
+    aparelho: aparelhoConhecido(req, dados.email),
+    origem: chaveDaOrigem(req)
+  });
+  if (tentativa.espera) {
+    res.set('Retry-After', String(tentativa.espera));
     return recusar(429, 'Muitas tentativas erradas. Espere alguns minutos e tente de novo.', 'tentativas');
   }
 
@@ -37,13 +42,11 @@ rotas.post('/', async function (req, res) {
   );
   // Confere a senha mesmo sem usuário, para a resposta demorar o mesmo tanto.
   const senhaConfere = await conferirSenha(dados.senha, rows[0] && rows[0].senha_hash);
-  if (!rows.length || !senhaConfere) {
-    registrarFalha(dados.email);
-    return recusar(401, 'E-mail ou senha incorretos.', 'credenciais');
-  }
+  if (!rows.length || !senhaConfere) return recusar(401, 'E-mail ou senha incorretos.', 'credenciais');
 
-  limparFalhas(dados.email);
+  tentativa.acertou();
   await criarSessao(res, rows[0].id_administrador);
+  lembrarAparelho(res, dados.email);
   if (formulario) return res.redirect(303, PAGINA_INICIAL);
   res.status(201).json({ nome: rows[0].nome, email: dados.email, perfil: rows[0].perfil });
 });

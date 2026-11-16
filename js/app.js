@@ -241,6 +241,8 @@ if (formDenuncia) {
     if (resposta.status === 400 && resposta.corpo.campos) {
       GE.mostrarErros(formDenuncia, resposta.corpo.campos);
       erro.textContent = 'Confira os campos indicados.';
+    } else if (resposta.status === 429 && resposta.corpo.erro) {
+      erro.textContent = resposta.corpo.erro + ' O que você escreveu continua aqui.';
     } else {
       erro.textContent = 'Não foi possível enviar agora. Verifique a conexão e tente de novo. O que você escreveu continua aqui.';
     }
@@ -296,7 +298,7 @@ if (formConsulta) {
       return;
     }
     botao.disabled = false;
-    if (resposta.status === 400 || resposta.status === 404) {
+    if (resposta.status === 400 || resposta.status === 404 || resposta.status === 429) {
       saida.textContent = (resposta.corpo.campos && resposta.corpo.campos.codigo) || resposta.corpo.erro;
     } else {
       saida.textContent = 'Não foi possível consultar agora. Verifique a conexão e tente de novo.';

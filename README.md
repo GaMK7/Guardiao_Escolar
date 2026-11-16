@@ -50,7 +50,7 @@ Se ninguém mais consegue entrar (senha esquecida, administrador desativado), ro
 npm test
 ```
 
-São 57 testes automáticos, organizados pelos requisitos do escopo: registro, validação, consulta pública, login, lista e contagem, andamento, usuários, troca de senha, segurança e HTTPS. Rodam num PostgreSQL em memória (PGlite), sem precisar do Neon nem do `.env`. Estão em [testes/](testes/).
+São 76 testes automáticos, organizados pelos requisitos do escopo: registro, validação, consulta pública, login, bloqueio de login, lista e contagem, andamento, usuários, troca de senha, segurança, limites contra robôs e HTTPS. Rodam num PostgreSQL em memória (PGlite), sem precisar do Neon nem do `.env`. Estão em [testes/](testes/).
 
 ## Produção e HTTPS (RNF01)
 
@@ -60,6 +60,8 @@ São 57 testes automáticos, organizados pelos requisitos do escopo: registro, v
   - envia HSTS, para o navegador não tentar HTTP de novo;
   - só manda o cookie de login por HTTPS.
 - Em produção, o servidor confia no primeiro proxy para saber se o pedido veio por HTTPS. Não rode com `NODE_ENV=production` sem esse proxy: todo pedido seria redirecionado.
+- O mesmo proxy informa o IP de cada visitante, usado nos limites contra robôs. Se houver **mais de um** proxy na frente do Node (por exemplo, Cloudflare na frente da hospedagem), ajuste o `trust proxy` em `servidor/app.js` para o número de proxies. Senão, todos os visitantes contam como um só e o limite trava o site para todo mundo.
+- Os limites ficam na memória de cada processo. Com várias instâncias do servidor, cada uma conta separado.
 
 ## Estrutura
 
@@ -85,9 +87,9 @@ São 57 testes automáticos, organizados pelos requisitos do escopo: registro, v
 │   ├── banco.js          conexão com o PostgreSQL
 │   ├── codigo.js         código de acompanhamento e o hash dele
 │   ├── validacao.js      validação de tudo que chega
-│   ├── autenticacao.js   sessões, exigirLogin e exigirAdministrador
+│   ├── autenticacao.js   sessões, cookie de aparelho, exigirLogin e exigirAdministrador
 │   ├── senha.js          bcrypt e senha provisória
-│   ├── limite.js         limite de tentativas de login
+│   ├── limite.js         limites contra robôs: login por conta, aparelho e origem; pedidos por origem
 │   ├── criar-admin.js    npm run criar-admin
 │   └── rotas/            denuncias, sessao, conta e usuarios
 ├── testes/               npm test
@@ -101,8 +103,8 @@ As rotas marcadas com **login** respondem `401` sem uma sessão válida. As de *
 
 | Método e rota | Acesso | O que faz |
 |---|---|---|
-| `POST /api/denuncias` | público | Registra a denúncia. `201 { protocolo, codigo }` |
-| `POST /api/denuncias/consulta` | público | Consulta pelo `{ codigo }`, que vai no corpo e nunca na URL. `200 { protocolo, tipo, status, criado_em, andamentos }` ou `404` |
+| `POST /api/denuncias` | público | Registra a denúncia. `201 { protocolo, codigo }`, ou `429` depois de 20 na mesma hora vindas da mesma origem |
+| `POST /api/denuncias/consulta` | público | Consulta pelo `{ codigo }`, que vai no corpo e nunca na URL. `200 { protocolo, tipo, status, criado_em, andamentos }`, `404`, ou `429` depois de 30 códigos errados em 15 minutos |
 | `POST /api/sessao` | público | Login com `{ email, senha }`. `201 { nome, email, perfil }`, `401` ou `429` |
 | `GET /api/sessao` | login | Quem está logado |
 | `DELETE /api/sessao` ou `GET /api/sessao/sair` | público | Sai |
@@ -131,8 +133,18 @@ O login também aceita o formulário sem JavaScript: em vez de JSON, redireciona
   - o código vai da tela de envio para a de confirmação por `sessionStorage`, nunca pela URL.
 - **Senhas (RNF02):** ficam no banco com bcrypt.
 - **Login:**
-  - depois de 5 senhas erradas, o e-mail fica bloqueado por 15 minutos;
+  - depois de 5 senhas erradas em navegadores desconhecidos, o e-mail fica bloqueado por 15 minutos;
+  - o navegador onde a pessoa já entrou com sucesso guarda um cookie de aparelho (`ge_aparelho`, 180 dias, só em `/api/sessao`). Ele tem os seus próprios 5 erros e não fica preso no bloqueio do e-mail. Assim, errar a senha da coordenação de propósito não tranca a coordenação do lado de fora. O cookie não dá acesso a nada sozinho e não contém o e-mail: é um id assinado com uma chave derivada da `CODIGO_SEGREDO`;
+  - cada tentativa conta ao chegar, antes de conferir a senha, então disparar várias ao mesmo tempo não fura o bloqueio;
+  - login certo não conta, mas não apaga os erros de antes. A senha nova gerada pelo administrador libera o e-mail na hora;
   - a mensagem de erro não revela se o e-mail existe.
+- **Limites contra robôs, por origem (IP):** respondem `429` com `Retry-After`.
+  - até 20 denúncias por hora, para ninguém encher o banco de denúncias falsas;
+  - até 30 códigos errados a cada 15 minutos na consulta, o que torna inviável adivinhar um código; consulta certa não conta;
+  - até 20 logins errados a cada 15 minutos, mesmo em e-mails diferentes; login certo não conta;
+  - os limites são folgados porque uma escola inteira pode sair para a internet por um único IP;
+  - o pedido é contado ao chegar, então disparar vários ao mesmo tempo não fura o limite;
+  - o IP não é guardado (RN02): vira um HMAC com uma chave sorteada a cada início do servidor, só em memória. IPv6 conta pelo bloco /64.
 - **Sessão:**
   - dura 8 horas, num cookie `HttpOnly` e `SameSite=Strict`, e o banco guarda só o hash do token;
   - sair, desativar o usuário ou trocar a senha encerra a sessão na hora.

@@ -4,7 +4,7 @@
 const express = require('express');
 const banco = require('../banco');
 const { exigirLogin, exigirAdministrador } = require('../autenticacao');
-const { limparFalhas } = require('../limite');
+const { liberarConta } = require('../limite');
 const { gerarHashSenha, gerarSenhaProvisoria } = require('../senha');
 const { validarUsuario, validarSituacao, responderInvalido } = require('../validacao');
 
@@ -82,7 +82,7 @@ rotas.post('/:id/senha', async function (req, res, next) {
   );
   if (!rows.length) return res.status(404).json({ erro: 'Usuário não encontrado.' });
   await banco.query('DELETE FROM guardiao_mer.sessao WHERE administrador_id = $1', [req.params.id]);
-  limparFalhas(rows[0].email);
+  liberarConta(rows[0].email);
   res.json({ senha_provisoria: senha });
 });
 
