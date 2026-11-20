@@ -32,6 +32,20 @@ test('por HTTPS a página abre, com HSTS', async () => {
   assert.match(r.cabecalhos.get('strict-transport-security'), /max-age=\d+/);
 });
 
+/* O proxy acrescenta o IP real ao fim do X-Forwarded-For, e o servidor só confia nele.
+   Um X-Forwarded-For inventado pelo visitante fica à esquerda e não muda a origem. */
+test('o limite conta pelo IP que o proxy informa, e não se burla com X-Forwarded-For falso', async () => {
+  const DENUNCIA = { tipo: 'outro', descricao: 'Teste do limite atrás do proxy.', data_ocorrencia: '2026-03-12', local: 'outro' };
+  const vindoDe = (cadeia) => ({ corpo: DENUNCIA, cabecalhos: { ...HTTPS, 'X-Forwarded-For': cadeia } });
+
+  for (let i = 1; i <= 20; i++) {
+    assert.equal((await ambiente.pedir('POST', '/api/denuncias', vindoDe('203.0.113.7'))).status, 201, 'denúncia ' + i);
+  }
+  assert.equal((await ambiente.pedir('POST', '/api/denuncias', vindoDe('203.0.113.7'))).status, 429);
+  assert.equal((await ambiente.pedir('POST', '/api/denuncias', vindoDe('198.51.100.9, 203.0.113.7'))).status, 429);
+  assert.equal((await ambiente.pedir('POST', '/api/denuncias', vindoDe('198.51.100.9'))).status, 201);
+});
+
 test('o cookie de login só trafega por HTTPS (Secure)', async () => {
   const r = await ambiente.pedir('POST', '/api/sessao', {
     corpo: { email: 'diretora@escola.br', senha: 'senha-da-diretora' },
