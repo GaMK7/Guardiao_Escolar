@@ -67,7 +67,7 @@ O .env local ja traz a conta QA de desenvolvimento. Ele e ignorado pelo Git; nun
 npm test
 ```
 
-São 76 testes automáticos, organizados pelos requisitos do escopo: registro, validação, consulta pública, login, bloqueio de login, lista e contagem, andamento, usuários, troca de senha, segurança, limites contra robôs e HTTPS. Rodam num PostgreSQL em memória (PGlite), sem precisar do Neon nem do `.env`. Estão em [testes/](testes/).
+São 82 testes automáticos, organizados pelos requisitos do escopo: registro, validação, consulta pública, login, bloqueio de login, lista e contagem, andamento, usuários, troca de senha, segurança, limites contra robôs e HTTPS. Rodam num PostgreSQL em memória (PGlite), sem precisar do Neon nem do `.env`. Estão em [testes/](testes/).
 
 ## Produção e HTTPS (RNF01)
 
