@@ -163,6 +163,9 @@ rotas.post('/:protocolo/andamentos', exigirLogin, async function (req, res, next
     res.status(201).json(rows[0]);
   } catch (erro) {
     if (erro.code === '55000') {
+      if (String(erro.message).includes('DUPLICATE_STATUS')) {
+        return res.status(409).json({ erro: 'Este já é o status atual. Escolha outro status para registrar uma mudança.' });
+      }
       return res.status(409).json({ erro: 'Essa mudança de status não é permitida. O caminho é Recebida → Em análise → Concluída ou Arquivada.' });
     }
     if (erro.code === '42501') return res.status(403).json({ erro: 'Seu acesso está desativado.' });
