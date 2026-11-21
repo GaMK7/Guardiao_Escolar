@@ -274,12 +274,35 @@ describe('Detalhe e andamento (RF18, RF19, RF20, RN03, RN04)', () => {
     const detalhe = await pedir('GET', '/api/denuncias/' + denuncia.protocolo, { cookie: cookieAna });
     assert.equal(detalhe.corpo.status, 'concluida');
     assert.deepEqual(detalhe.corpo.andamentos.map((a) => a.autor), ['Ana Paula', 'Diretora Marta']);
+
+    const duplicado = await pedir('POST', andamentos(), {
+      cookie: cookieAdmin,
+      corpo: { status: 'concluida', providencia: 'Tentativa repetida.' }
+    });
+    assert.equal(duplicado.status, 409);
+    assert.match(duplicado.corpo.erro, /status atual/i);
+    const semDuplicata = await pedir('GET', '/api/denuncias/' + denuncia.protocolo, { cookie: cookieAna });
+    assert.equal(semDuplicata.corpo.andamentos.length, 2);
+
+    const reabertura = await pedir('POST', andamentos(), {
+      cookie: cookieAdmin,
+      corpo: { status: 'analise', providencia: 'Tentativa de reabertura do caso concluído.' }
+    });
+    assert.equal(reabertura.status, 409);
+    const arquivada = await pedir('POST', andamentos(), {
+      cookie: cookieAdmin,
+      corpo: { status: 'arquivada', providencia: 'Verificação encerrada e arquivada.' }
+    });
+    assert.equal(arquivada.status, 201);
+    const detalheFinal = await pedir('GET', '/api/denuncias/' + denuncia.protocolo, { cookie: cookieAna });
+    assert.equal(detalheFinal.corpo.status, 'arquivada');
+    assert.deepEqual(detalheFinal.corpo.andamentos.map((a) => a.status), ['analise', 'concluida', 'arquivada']);
   });
 
   test('a consulta pública mostra as providências, sem o autor', async () => {
     const r = await pedir('POST', '/api/denuncias/consulta', { corpo: { codigo: denuncia.codigo } });
-    assert.equal(r.corpo.status, 'concluida');
-    assert.deepEqual(r.corpo.andamentos.map((a) => a.providencia), ['Conversamos com as turmas.', 'Caso resolvido com as famílias.']);
+    assert.equal(r.corpo.status, 'arquivada');
+    assert.deepEqual(r.corpo.andamentos.map((a) => a.status), ['analise', 'concluida', 'arquivada']);
     assert.ok(!/Ana Paula|Diretora/.test(r.texto));
   });
 
