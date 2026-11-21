@@ -6,7 +6,6 @@
    ========================================================================== */
 (function () {
   var LOGIN = '/admin/login.html';
-  var PROXIMOS_STATUS = { recebida: ['analise'], analise: ['concluida', 'arquivada'], concluida: [], arquivada: [] };
   var PERFIS = { administrador: 'Administrador', responsavel: 'Responsável escolar' };
   var FALHA = 'Não foi possível carregar agora. Verifique a conexão e recarregue a página.';
 
@@ -134,7 +133,7 @@
   var formAndamento = document.querySelector('#form-andamento');
   var protocoloAtual = new URLSearchParams(window.location.search).get('protocolo') || '';
 
-  function mostrarDetalhe(denuncia) {
+  function mostrarDetalhe(denuncia, perfil) {
     document.title = 'Denúncia ' + denuncia.protocolo + ' — Guardião Escolar';
     document.querySelector('#detalhe-titulo').textContent = 'Denúncia ' + denuncia.protocolo;
     document.querySelector('#detalhe-status').replaceChildren(GE.etiquetaStatus(denuncia.status));
@@ -147,18 +146,36 @@
     document.querySelector('#detalhe-relato').textContent = denuncia.descricao;
     GE.linhaDoTempo(document.querySelector('#detalhe-historico'), denuncia, true);
 
-    // Exibe as quatro classificações; só a etapa atual e a próxima ficam habilitadas.
+    // Exibe as quatro classificações; apenas as próximas etapas válidas ficam habilitadas.
     var statusAtual = GEStatusOptions.normalizar(denuncia.status);
-    var opcoesStatus = GEStatusOptions.criar(statusAtual, GE.STATUS);
+    var administradorMaster = perfil === 'administrador';
+    var opcoesStatus = GEStatusOptions.criar(statusAtual, GE.STATUS, administradorMaster);
     var seletor = formAndamento.elements.status;
+    var proximaEtapa = opcoesStatus.find(function (item) { return !item.disabled; });
     seletor.replaceChildren();
+    var placeholder = GE.elemento('option', null, 'Selecione um novo status');
+    placeholder.value = '';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    seletor.appendChild(placeholder);
     opcoesStatus.forEach(function (item) {
       var opcao = GE.elemento('option', null, item.label);
       opcao.value = item.value;
       opcao.disabled = item.disabled;
       seletor.appendChild(opcao);
     });
-    document.querySelector('#ajuda-status').textContent = GEStatusOptions.ajuda(statusAtual);
+    formAndamento.dataset.statusAtual = statusAtual;
+    var encerrado = document.querySelector('#andamento-encerrado');
+    if (proximaEtapa) {
+      seletor.value = '';
+      formAndamento.hidden = false;
+      encerrado.hidden = true;
+      document.querySelector('#ajuda-status').textContent = GEStatusOptions.ajuda(statusAtual, administradorMaster);
+    } else {
+      formAndamento.hidden = true;
+      encerrado.textContent = GEStatusOptions.ajuda(statusAtual, administradorMaster);
+      encerrado.hidden = false;
+    }
 
     document.querySelector('#detalhe').hidden = false;
   }
@@ -168,8 +185,12 @@
       document.querySelector('#detalhe-ausente').hidden = false;
       return;
     }
-    var resposta = await pedir('GET', '/api/denuncias/' + encodeURIComponent(protocoloAtual));
-    if (resposta.status === 200) mostrarDetalhe(resposta.corpo);
+    var resultados = await Promise.all([
+      pedir('GET', '/api/denuncias/' + encodeURIComponent(protocoloAtual)),
+      sessao
+    ]);
+    var resposta = resultados[0];
+    if (resposta.status === 200) mostrarDetalhe(resposta.corpo, resultados[1].perfil);
     else if (resposta.status === 404) document.querySelector('#detalhe-ausente').hidden = false;
     else {
       var falha = document.querySelector('#detalhe-falha');
@@ -190,6 +211,10 @@
       sucesso.textContent = '';
 
       var dados = { status: formAndamento.elements.status.value, providencia: formAndamento.elements.providencia.value };
+      if (dados.status === formAndamento.dataset.statusAtual) {
+          erroEnvio.textContent = 'Este já é o status atual. Escolha outro status para registrar uma mudança.';
+        return;
+      }
       if (!dados.providencia.trim()) {
         GE.mostrarErros(formAndamento, { providencia: 'Descreva o que foi feito.' });
         return;

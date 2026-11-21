@@ -4,12 +4,7 @@
   if (typeof module === 'object' && module.exports) module.exports = modulo;
   else raiz.GEStatusOptions = modulo;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
-  var PROXIMOS = {
-    recebida: ['analise'],
-    analise: ['concluida', 'arquivada'],
-    concluida: [],
-    arquivada: []
-  };
+  var ORDEM = ['recebida', 'analise', 'concluida', 'arquivada'];
 
   function normalizar(status) {
     var chave = String(status || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -18,27 +13,26 @@
     return chave;
   }
 
-  function criar(statusAtual, rotulos) {
+  function criar(statusAtual, rotulos, administradorMaster) {
     var atual = normalizar(statusAtual);
-    var permitidos = PROXIMOS[atual];
-    if (!permitidos || !rotulos || !Object.prototype.hasOwnProperty.call(rotulos, atual)) return [];
+    var indiceAtual = ORDEM.indexOf(atual);
+    if (indiceAtual < 0 || !rotulos || !Object.prototype.hasOwnProperty.call(rotulos, atual)) return [];
 
     return Object.keys(rotulos).map(function (status) {
-      var eAtual = status === atual;
-      var habilitado = eAtual || permitidos.includes(status);
-      var rotulo = rotulos[status] + (eAtual ? ' (manter)' : '');
-      if (!habilitado && atual === 'recebida' && (status === 'concluida' || status === 'arquivada')) {
-        rotulo += ' (após Em análise)';
-      }
+      var indice = ORDEM.indexOf(status);
+      var habilitado = indice > indiceAtual && (administradorMaster || indice === indiceAtual + 1);
+      var rotulo = rotulos[status];
       return { value: status, label: rotulo, disabled: !habilitado };
     });
   }
 
-  function ajuda(statusAtual) {
+  function ajuda(statusAtual, administradorMaster) {
     var atual = normalizar(statusAtual);
-    if (atual === 'recebida') return 'Avance para Em análise. Concluída e Arquivada ficam disponíveis na etapa seguinte.';
-    if (atual === 'analise') return 'Status atual: Em análise. Escolha Concluída ou Arquivada para encerrar o caso.';
-    if (atual === 'concluida' || atual === 'arquivada') return 'Caso encerrado. Ainda é possível registrar uma providência.';
+    if (atual === 'arquivada') return 'Caso arquivado. O fluxo foi concluído.';
+    if (administradorMaster) return 'Administrador: você pode avançar para qualquer etapa futura. Descreva a decisão; etapas anteriores não podem ser retomadas.';
+    if (atual === 'recebida') return 'Próxima etapa: Em análise. Etapas anteriores não podem ser retomadas.';
+    if (atual === 'analise') return 'Próxima etapa: Concluída. Arquivada fica disponível depois.';
+    if (atual === 'concluida') return 'Próxima etapa: Arquivada.';
     return '';
   }
 

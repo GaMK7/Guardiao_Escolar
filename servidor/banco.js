@@ -1,11 +1,35 @@
-/* Conexão com o PostgreSQL. Toda consulta deve usar parâmetros ($1, $2...), nunca texto concatenado (RNF04). */
-const { Pool } = require('pg');
+/* PostgreSQL normal ou PGlite persistente para desenvolvimento local. */
+if (process.env.LOCAL_DATABASE === 'pglite') {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const { PGlite } = require('@electric-sql/pglite');
+  const RAIZ = path.join(__dirname, '..');
+  const caminho = path.join(RAIZ, '.local-db');
 
-const banco = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pronto = PGlite.create(caminho).then(async function (db) {
+    const esquema = fs.readFileSync(path.join(RAIZ, 'guardiao-escolar-postgresql.sql'), 'utf8');
+    await db.exec(esquema);
+    return db;
+  });
 
-// O Neon encerra conexões paradas; sem isto o erro derrubaria o servidor.
-banco.on('error', function (erro) {
-  console.error('Conexão com o banco perdida:', erro.message);
-});
+  module.exports = {
+    query: async function (sql, parametros) {
+      return (await pronto).query(sql, parametros);
+    },
+    on: function () {
+      return this;
+    },
+    end: async function () {
+      return (await pronto).close();
+    }
+  };
+} else {
+  const { Pool } = require('pg');
+  const banco = new Pool({ connectionString: process.env.DATABASE_URL });
 
-module.exports = banco;
+  banco.on('error', function (erro) {
+    console.error('Erro na conexao com o banco:', erro.message);
+  });
+
+  module.exports = banco;
+}

@@ -286,11 +286,25 @@ DROP TRIGGER IF EXISTS andamento_sem_truncate ON guardiao_mer.andamento;
 CREATE TRIGGER andamento_sem_truncate BEFORE TRUNCATE ON guardiao_mer.andamento
 FOR EACH STATEMENT EXECUTE FUNCTION guardiao_mer.proteger_andamento();
 
--- Caminho do status (RF19): recebida -> analise -> concluida ou arquivada.
-CREATE OR REPLACE FUNCTION guardiao_mer.transicao_permitida(p_de TEXT, p_para TEXT)
+-- Fluxo do status (RF19): recebida -> analise -> concluida -> arquivada.
+-- Administradores podem avançar etapas; ninguem pode voltar ou repetir uma etapa.
+CREATE OR REPLACE FUNCTION guardiao_mer.transicao_permitida(p_de TEXT, p_para TEXT, p_permitir_pulo BOOLEAN)
 RETURNS BOOLEAN LANGUAGE sql IMMUTABLE SET search_path = pg_catalog, pg_temp AS $$
-    SELECT (p_de = 'recebida' AND p_para = 'analise') OR
-           (p_de = 'analise' AND p_para IN ('concluida','arquivada'));
+    SELECT CASE p_de WHEN 'recebida' THEN 0 WHEN 'analise' THEN 1
+                     WHEN 'concluida' THEN 2 WHEN 'arquivada' THEN 3 ELSE -1 END
+           < CASE p_para WHEN 'recebida' THEN 0 WHEN 'analise' THEN 1
+                         WHEN 'concluida' THEN 2 WHEN 'arquivada' THEN 3 ELSE -1 END
+       AND (p_permitir_pulo OR
+            CASE p_para WHEN 'recebida' THEN 0 WHEN 'analise' THEN 1
+                        WHEN 'concluida' THEN 2 WHEN 'arquivada' THEN 3 ELSE -1 END =
+            CASE p_de WHEN 'recebida' THEN 0 WHEN 'analise' THEN 1
+                      WHEN 'concluida' THEN 2 WHEN 'arquivada' THEN 3 ELSE -1 END + 1);
+$$;
+
+-- O gatilho da tabela permite avanço monotônico; o fluxo da aplicação limita pulos ao administrador.
+CREATE OR REPLACE FUNCTION guardiao_mer.transicao_permitida(p_de TEXT, p_para TEXT)
+RETURNS BOOLEAN LANGUAGE sql IMMUTABLE SET search_path = pg_catalog, guardiao_mer, pg_temp AS $$
+    SELECT guardiao_mer.transicao_permitida(p_de, p_para, TRUE);
 $$;
 
 -- Valida os dados e as mudanças de status.
@@ -388,9 +402,9 @@ CREATE OR REPLACE FUNCTION guardiao_mer.registrar_andamento(
     p_protocolo TEXT, p_administrador BIGINT, p_status TEXT, p_providencia TEXT
 ) RETURNS TABLE (status TEXT, providencia TEXT, criado_em TIMESTAMPTZ, autor TEXT)
 LANGUAGE plpgsql SET search_path = pg_catalog, guardiao_mer, pg_temp AS $$
-DECLARE v_registro BIGINT; v_status TEXT; v_autor TEXT;
+DECLARE v_registro BIGINT; v_status TEXT; v_autor TEXT; v_perfil TEXT;
 BEGIN
-    SELECT adm.nome INTO v_autor FROM guardiao_mer.administrador adm
+    SELECT adm.nome, adm.perfil INTO v_autor, v_perfil FROM guardiao_mer.administrador adm
     WHERE adm.id_administrador = p_administrador AND adm.ativo;
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Administrador inexistente ou inativo.' USING ERRCODE = '42501';
@@ -400,12 +414,13 @@ BEGIN
     IF NOT FOUND THEN
         RETURN;
     END IF;
-    IF p_status <> v_status THEN
-        IF NOT guardiao_mer.transicao_permitida(v_status, p_status) THEN
-            RAISE EXCEPTION 'Transição de status inválida: % -> %.', v_status, p_status USING ERRCODE = '55000';
-        END IF;
-        UPDATE guardiao_mer.registro r SET status = p_status WHERE r.id_registro = v_registro;
+    IF p_status = v_status THEN
+        RAISE EXCEPTION 'DUPLICATE_STATUS' USING ERRCODE = '55000';
     END IF;
+    IF NOT guardiao_mer.transicao_permitida(v_status, p_status, v_perfil = 'administrador') THEN
+        RAISE EXCEPTION 'STATUS_TRANSITION_INVALID' USING ERRCODE = '55000';
+    END IF;
+    UPDATE guardiao_mer.registro r SET status = p_status WHERE r.id_registro = v_registro;
     RETURN QUERY
     INSERT INTO guardiao_mer.andamento AS a (registro_id, administrador_id, status_novo, providencia)
     VALUES (v_registro, p_administrador, p_status, trim(p_providencia))
