@@ -147,17 +147,18 @@
     document.querySelector('#detalhe-relato').textContent = denuncia.descricao;
     GE.linhaDoTempo(document.querySelector('#detalhe-historico'), denuncia, true);
 
-    // O status atual (só registra a providência) e os próximos permitidos pelo caminho do RF19.
+    // Exibe as quatro classificações; só a etapa atual e a próxima ficam habilitadas.
+    var statusAtual = GEStatusOptions.normalizar(denuncia.status);
+    var opcoesStatus = GEStatusOptions.criar(statusAtual, GE.STATUS);
     var seletor = formAndamento.elements.status;
     seletor.replaceChildren();
-    [denuncia.status].concat(PROXIMOS_STATUS[denuncia.status]).forEach(function (status) {
-      var opcao = GE.elemento('option', null, GE.STATUS[status] + (status === denuncia.status ? ' (manter)' : ''));
-      opcao.value = status;
+    opcoesStatus.forEach(function (item) {
+      var opcao = GE.elemento('option', null, item.label);
+      opcao.value = item.value;
+      opcao.disabled = item.disabled;
       seletor.appendChild(opcao);
     });
-    document.querySelector('#ajuda-status').textContent = PROXIMOS_STATUS[denuncia.status].length
-      ? 'O caminho é Recebida → Em análise → Concluída ou Arquivada.'
-      : 'Caso encerrado. Ainda dá para registrar uma providência.';
+    document.querySelector('#ajuda-status').textContent = GEStatusOptions.ajuda(statusAtual);
 
     document.querySelector('#detalhe').hidden = false;
   }
