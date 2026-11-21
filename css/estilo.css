@@ -664,11 +664,12 @@ tbody tr:hover {
   padding: 14px;
   font-size: 15px;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .colunas-admin {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
