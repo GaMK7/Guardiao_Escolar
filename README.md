@@ -196,3 +196,71 @@ O sistema deve ser aberto pelo endereço HTTP ou HTTPS do servidor Node.js. Dist
 Para produção, publique a aplicação Node.js com PostgreSQL e um endereço HTTPS acessível aos dispositivos. O endereço 127.0.0.1 aponta para o próprio dispositivo; não permite que um tablet acesse o servidor do computador. Testar por Wi-Fi exige um endereço da rede local, servidor acessível por essa rede e configuração apropriada de acesso. Nenhuma publicação é feita automaticamente ao baixar este repositório.
 
 A suíte inclui testes dos arquivos públicos, tipos de conteúdo, login sem JavaScript, erros da API e tratamento de resposta inválida no cliente. Alterar o User-Agent em um teste de API não substitui a validação em navegadores e aparelhos reais.
+
+## Executar com Docker
+
+O Compose sobe a aplicação e um PostgreSQL local. Os dados ficam no volume `dados_postgres`. Este modo atende desenvolvimento e demonstração; para disponibilizar o sistema na internet, configure HTTPS, segredos exclusivos e uma política de backup antes de publicar.
+
+### Requisitos
+
+- Docker Desktop iniciado, com o mecanismo Linux disponível.
+- Docker Compose v2 ou mais recente (`docker compose`).
+
+### Primeira inicialização
+
+No PowerShell, na pasta raiz do repositório:
+
+```powershell
+Copy-Item .env.docker.example .env.docker
+```
+
+Edite `.env.docker` antes de subir os serviços. Defina `POSTGRES_PASSWORD` com uma senha local, use a mesma senha na URL `DATABASE_URL` e substitua `CODIGO_SEGREDO` por uma chave aleatória de pelo menos 32 caracteres. Não reutilize esses valores em produção nem compartilhe o arquivo. Para gerar uma chave no Node.js:
+
+```powershell
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
+
+Inicialize o banco e a aplicação:
+
+```powershell
+docker compose --env-file .env.docker up -d db
+docker compose --env-file .env.docker --profile tools run --rm db-init
+docker compose --env-file .env.docker up -d --build app
+```
+
+Abra `http://localhost:3000`. Para mudar a porta local, ajuste `APP_PORT` no `.env.docker`.
+
+### Criar o primeiro administrador
+
+Depois de o serviço `app` estar saudável, crie o acesso inicial. Informe um e-mail sob seu controle e um nome:
+
+```powershell
+docker compose --env-file .env.docker exec app npm run criar-admin -- coordenacao@escola.edu.br "Nome da Pessoa"
+```
+
+O comando mostra uma senha provisória uma única vez no terminal. Guarde-a em local privado, entre em `http://localhost:3000/admin/login.html` e troque a senha. Não coloque credenciais em arquivos versionados, mensagens ou capturas de tela.
+
+### Verificar e acompanhar
+
+```powershell
+docker compose --env-file .env.docker ps
+docker compose --env-file .env.docker logs -f app db
+```
+
+O contêiner da aplicação tem healthcheck HTTP. O PostgreSQL só fica acessível pela rede interna do Compose; a aplicação fica vinculada a `127.0.0.1` por padrão.
+
+### Parar, reiniciar e atualizar
+
+Para parar os contêineres sem apagar o banco:
+
+```powershell
+docker compose --env-file .env.docker down
+```
+
+Para iniciar novamente, use `docker compose --env-file .env.docker up -d`. O volume `dados_postgres` preserva os dados entre paradas e atualizações. Antes de atualizar o esquema, faça backup do banco; o script `guardiao-escolar-postgresql.sql` pode ser reaplicado para atualizar a estrutura existente:
+
+```powershell
+docker compose --env-file .env.docker --profile tools run --rm db-init
+```
+
+**Atenção:** `docker compose --env-file .env.docker down -v` apaga o volume e todos os dados locais do banco. Use somente se quiser removê-los intencionalmente.

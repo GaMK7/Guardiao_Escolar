@@ -1,0 +1,62 @@
+name: guardiao-escolar
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-guardiao}
+      POSTGRES_USER: ${POSTGRES_USER:-guardiao}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure POSTGRES_PASSWORD in .env.docker}
+    volumes:
+      - dados_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  db-init:
+    image: postgres:17-alpine
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-guardiao}
+      PGDATABASE: ${POSTGRES_DB:-guardiao}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Configure POSTGRES_PASSWORD in .env.docker}
+    volumes:
+      - ./guardiao-escolar-postgresql.sql:/schema.sql:ro
+    command: ["psql", "--set=ON_ERROR_STOP=1", "--file=/schema.sql"]
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env.docker
+    environment:
+      NODE_ENV: development
+      PORT: "3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  dados_postgres:

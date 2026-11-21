@@ -1,0 +1,11 @@
+.git
+.gitignore
+.env
+.env.*
+.local-db
+node_modules
+npm-debug.log*
+outputs
+coverage
+test-results
+playwright-report
