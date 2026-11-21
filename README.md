@@ -44,6 +44,23 @@ Precisa do Node.js 20.12 ou mais novo.
 
 Se ninguém mais consegue entrar (senha esquecida, administrador desativado), rode o `criar-admin` de novo com o e-mail de um administrador. Ele gera senha nova, reativa o acesso e dá perfil de administrador.
 
+## Conta compartilhada de QA
+
+Para criar uma conta geral para testers, configure QA_ADMIN_EMAIL, QA_ADMIN_NOME e QA_ADMIN_PASSWORD no ambiente de hospedagem. Guarde a senha como segredo privado, fora do Git. Habilite QA_ADMIN_SEED_ENABLED=true somente no ambiente escolhido e execute npm run criar-admin-qa manualmente com o DATABASE_URL desse ambiente.
+
+O comando cria ou atualiza a conta com perfil de administrador e encerra sessoes anteriores. Ele nao roda ao iniciar o servidor. Como o login e compartilhado, todas as alteracoes feitas por testers ficam atribuidas a essa mesma conta.
+
+## Desenvolvimento local
+
+Para rodar sem Neon ou Docker:
+
+1. Execute npm install.
+2. Mantenha LOCAL_DATABASE=pglite no .env local. O banco persistente e criado automaticamente em .local-db.
+3. Execute npm run criar-admin-qa uma vez para criar a conta local.
+4. Execute npm run dev e abra http://localhost:3000/admin/login.html.
+
+O .env local ja traz a conta QA de desenvolvimento. Ele e ignorado pelo Git; nunca copie essas credenciais para a hospedagem de producao.
+
 ## Testes
 
 ```
