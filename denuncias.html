@@ -1,97 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex">
-  <title>Denúncias recebidas — Guardião Escolar</title>
-  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
-  <link rel="stylesheet" href="css/estilo.css">
-</head>
-<body>
-  <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Denúncias recebidas — Guardião Escolar</title>
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+    <link rel="stylesheet" href="css/estilo.css" />
+  </head>
+  <body>
+    <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
 
-  <header class="barra-topo">
-    <div class="interno">
-      <a class="marca" href="denuncias.html">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 2.5 4 5.6v6.1c0 4.7 3.3 8.2 8 9.8 4.7-1.6 8-5.1 8-9.8V5.6L12 2.5Z" stroke="#1F5D50" stroke-width="1.6" stroke-linejoin="round"/>
-        </svg>
-        <span>Guardião Escolar</span>
-      </a>
-      <p class="usuario"><span id="usuario-nome"></span> <a href="usuarios.html" id="link-usuarios" hidden>Usuários</a> <a href="senha.html">Trocar senha</a> <a href="/api/sessao/sair">Sair</a></p>
-    </div>
-  </header>
-
-  <!-- Preenchido por js/admin.js com GET /api/denuncias/resumo e GET /api/denuncias?status=&tipo= -->
-  <main class="pagina pagina--admin" id="conteudo">
-
-    <h1>Denúncias recebidas</h1>
-
-    <section class="indicadores" aria-label="Denúncias por status">
-      <div class="indicador"><strong class="numero" data-contagem-status="recebida">–</strong><span>Recebidas</span></div>
-      <div class="indicador"><strong class="numero" data-contagem-status="analise">–</strong><span>Em análise</span></div>
-      <div class="indicador"><strong class="numero" data-contagem-status="concluida">–</strong><span>Concluídas</span></div>
-      <div class="indicador"><strong class="numero" data-contagem-status="arquivada">–</strong><span>Arquivadas</span></div>
-    </section>
-
-    <ul class="contagens" id="contagem-tipos" aria-label="Denúncias por tipo"></ul>
-
-    <nav class="filtros" aria-label="Filtrar denúncias">
-      <a data-status="" href="denuncias.html">Todas</a>
-      <a data-status="recebida" href="denuncias.html?status=recebida">Recebidas</a>
-      <a data-status="analise" href="denuncias.html?status=analise">Em análise</a>
-      <a data-status="concluida" href="denuncias.html?status=concluida">Concluídas</a>
-      <a data-status="arquivada" href="denuncias.html?status=arquivada">Arquivadas</a>
-
-      <label for="filtro-tipo" class="ajuda" style="margin:0 0 0 6px">Tipo</label>
-      <select id="filtro-tipo" name="tipo">
-        <option value="">Todos</option>
-        <option value="bullying">Bullying</option>
-        <option value="cyberbullying">Cyberbullying</option>
-        <option value="assedio">Assédio</option>
-        <option value="ameaca">Ameaça</option>
-        <option value="agressao_fisica">Agressão física</option>
-        <option value="discriminacao">Discriminação</option>
-        <option value="outro">Outro</option>
-      </select>
-    </nav>
-
-    <div class="aviso" id="lista-falha" role="alert" hidden></div>
-
-    <div class="tabela-rolagem">
-      <table id="tabela-denuncias">
-        <caption>Carregando…</caption>
-        <thead>
-          <tr>
-            <th scope="col">Protocolo</th>
-            <th scope="col">Tipo</th>
-            <th scope="col">Recebida em</th>
-            <th scope="col">Local</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <div class="vazio" id="lista-vazia" hidden>
-        <p id="lista-vazia-geral"><strong>Nenhuma denúncia por aqui.</strong>Quando alguém registrar uma ocorrência, ela aparece nesta lista.</p>
-        <p id="lista-vazia-filtro"><strong>Nenhuma denúncia com estes filtros.</strong><a href="denuncias.html">Ver todas</a></p>
+    <header class="barra-topo">
+      <div class="interno">
+        <a class="marca" href="denuncias.html">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2.5 4 5.6v6.1c0 4.7 3.3 8.2 8 9.8 4.7-1.6 8-5.1 8-9.8V5.6L12 2.5Z" stroke="#1F5D50" stroke-width="1.6" stroke-linejoin="round" />
+          </svg>
+          <span>Guardião Escolar</span>
+        </a>
+        <p class="usuario"><span id="usuario-nome"></span> <a href="usuarios.html" id="link-usuarios" hidden>Usuários</a> <a href="senha.html">Trocar senha</a> <a href="/api/sessao/sair">Sair</a></p>
       </div>
-    </div>
+    </header>
 
-    <nav class="filtros paginacao" id="paginacao" aria-label="Páginas" hidden>
-      <a id="pagina-anterior" href="denuncias.html">&larr; Mais recentes</a>
-      <span id="pagina-atual"></span>
-      <a id="pagina-seguinte" href="denuncias.html">Mais antigas &rarr;</a>
-    </nav>
+    <!-- Preenchido por js/admin.js com GET /api/denuncias/resumo e GET /api/denuncias?status=&tipo= -->
+    <main class="pagina pagina--admin" id="conteudo">
+      <h1>Denúncias recebidas</h1>
 
-    <footer class="rodape">
-      <p>O conteúdo desta página é restrito. Não compartilhe capturas de tela fora da equipe autorizada.</p>
-    </footer>
-  </main>
+      <section class="indicadores" aria-label="Denúncias por status">
+        <div class="indicador"><strong class="numero" data-contagem-status="recebida">–</strong><span>Recebidas</span></div>
+        <div class="indicador"><strong class="numero" data-contagem-status="analise">–</strong><span>Em análise</span></div>
+        <div class="indicador"><strong class="numero" data-contagem-status="concluida">–</strong><span>Concluídas</span></div>
+        <div class="indicador"><strong class="numero" data-contagem-status="arquivada">–</strong><span>Arquivadas</span></div>
+      </section>
 
-  <script src="js/app.js"></script>
-  <script src="js/admin.js"></script>
-</body>
+      <ul class="contagens" id="contagem-tipos" aria-label="Denúncias por tipo"></ul>
+
+      <nav class="filtros" aria-label="Filtrar denúncias">
+        <a data-status="" href="denuncias.html">Todas</a>
+        <a data-status="recebida" href="denuncias.html?status=recebida">Recebidas</a>
+        <a data-status="analise" href="denuncias.html?status=analise">Em análise</a>
+        <a data-status="concluida" href="denuncias.html?status=concluida">Concluídas</a>
+        <a data-status="arquivada" href="denuncias.html?status=arquivada">Arquivadas</a>
+
+        <div class="filtro-tipo-grupo">
+          <label for="filtro-tipo" class="ajuda" style="margin: 0 0 0 6px">Tipo</label>
+          <select id="filtro-tipo" name="tipo">
+            <option value="">Todos</option>
+            <option value="bullying">Bullying</option>
+            <option value="cyberbullying">Cyberbullying</option>
+            <option value="assedio">Assédio</option>
+            <option value="ameaca">Ameaça</option>
+            <option value="agressao_fisica">Agressão física</option>
+            <option value="discriminacao">Discriminação</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+      </nav>
+
+      <div class="aviso" id="lista-falha" role="alert" hidden></div>
+
+      <div class="tabela-rolagem">
+        <table id="tabela-denuncias">
+          <caption>
+            Carregando…
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Protocolo</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Recebida em</th>
+              <th scope="col">Local</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <div class="vazio" id="lista-vazia" hidden>
+          <p id="lista-vazia-geral"><strong>Nenhuma denúncia por aqui.</strong>Quando alguém registrar uma ocorrência, ela aparece nesta lista.</p>
+          <p id="lista-vazia-filtro"><strong>Nenhuma denúncia com estes filtros.</strong><a href="denuncias.html">Ver todas</a></p>
+        </div>
+      </div>
+
+      <nav class="filtros paginacao" id="paginacao" aria-label="Páginas" hidden>
+        <a id="pagina-anterior" href="denuncias.html">&larr; Mais recentes</a>
+        <span id="pagina-atual"></span>
+        <a id="pagina-seguinte" href="denuncias.html">Mais antigas &rarr;</a>
+      </nav>
+
+      <footer class="rodape">
+        <p>O conteúdo desta página é restrito. Não compartilhe capturas de tela fora da equipe autorizada.</p>
+      </footer>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
 </html>

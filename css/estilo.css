@@ -562,6 +562,87 @@ textarea:invalid:not(:placeholder-shown) {
   }
 }
 
+/* ==========================================
+   PAINEL ADMINISTRATIVO - INDICADORES
+   ========================================== */
+
+.pagina--admin .indicadores {
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.pagina--admin .indicador {
+  position: relative;
+  overflow: hidden;
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid #e5ebe7;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(20, 60, 45, 0.05);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@media (hover: hover) {
+  .pagina--admin .indicador:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(20, 60, 45, 0.1);
+  }
+}
+
+.pagina--admin .indicador strong {
+  font-size: 36px;
+  font-weight: 750;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+
+.pagina--admin .indicador span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Recebidas */
+.pagina--admin .indicador:nth-child(1) {
+  border-top: 4px solid #d97736;
+  background: #fffaf5;
+}
+
+.pagina--admin .indicador:nth-child(1) strong {
+  color: #a64c16;
+}
+
+/* Em análise */
+.pagina--admin .indicador:nth-child(2) {
+  border-top: 4px solid #d6a12e;
+  background: #fffdf5;
+}
+
+.pagina--admin .indicador:nth-child(2) strong {
+  color: #936510;
+}
+
+/* Concluídas */
+.pagina--admin .indicador:nth-child(3) {
+  border-top: 4px solid #278362;
+  background: #f5fbf7;
+}
+
+.pagina--admin .indicador:nth-child(3) strong {
+  color: #216c50;
+}
+
+/* Arquivadas */
+.pagina--admin .indicador:nth-child(4) {
+  border-top: 4px solid #87939b;
+  background: #f8fafb;
+}
+
+.pagina--admin .indicador:nth-child(4) strong {
+  color: #52616b;
+}
+
 .filtros {
   display: flex;
   flex-wrap: wrap;
@@ -1355,5 +1436,308 @@ body.pagina-inicio::after {
     width: calc(100% - 20px);
     margin-top: 10px;
     border-radius: 16px;
+  }
+}
+
+/* ==========================================
+   PAINEL - DESTAQUE DE DENÚNCIAS RECEBIDAS
+   ========================================== */
+
+/* Destaca linhas que possuem status Recebida */
+.pagina--admin #tabela-denuncias tbody tr:has(.etiqueta--recebida) {
+  background-color: #fffaf5;
+}
+
+/* Faixa lateral de atenção */
+.pagina--admin #tabela-denuncias tbody tr:has(.etiqueta--recebida) td:first-child {
+  border-left: 4px solid #d97736;
+  padding-left: 10px;
+}
+
+/* Destaque ao passar o mouse */
+@media (hover: hover) {
+  .pagina--admin #tabela-denuncias tbody tr:has(.etiqueta--recebida):hover {
+    background-color: #fff0df;
+  }
+}
+
+/* Deixa o protocolo mais visível */
+.pagina--admin #tabela-denuncias tbody td:first-child {
+  font-weight: 700;
+}
+
+/* ==========================================
+   PAINEL ADMINISTRATIVO - FILTROS
+   ========================================== */
+
+/* Área dos filtros */
+.pagina--admin nav.filtros:not(.paginacao) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e5ebe7;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(20, 60, 45, 0.04);
+}
+
+/* Botões dos filtros */
+.pagina--admin nav.filtros:not(.paginacao) a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 1px solid #dce6e0;
+  border-radius: 10px;
+  background: #f8faf9;
+  color: #52645c;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Efeito ao passar o mouse */
+@media (hover: hover) {
+  .pagina--admin nav.filtros:not(.paginacao) a:hover {
+    background: #e8f2ed;
+    border-color: #a6c7b6;
+    color: #1f5d50;
+  }
+}
+
+/* Filtro selecionado */
+.pagina--admin nav.filtros:not(.paginacao) a[aria-current="page"] {
+  background: #1f5d50;
+  border-color: #1f5d50;
+  color: #ffffff;
+}
+
+/* Campo de seleção por tipo */
+.pagina--admin #filtro-tipo {
+  min-height: 40px;
+  max-width: 100%;
+  border: 1px solid #dce6e0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #243c32;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* Adaptação para celulares */
+@media (max-width: 600px) {
+  .pagina--admin nav.filtros:not(.paginacao) {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .pagina--admin nav.filtros:not(.paginacao) a {
+    flex: 1 1 auto;
+    font-size: 13px;
+    padding: 9px 10px;
+  }
+
+  .pagina--admin #filtro-tipo {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+/* ==========================================
+   AJUSTES RESPONSIVOS - PAINEL ADMINISTRATIVO
+   ========================================== */
+
+/* Cards em grade 2x2 no celular */
+@media (max-width: 600px) {
+  .pagina--admin .indicadores {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .pagina--admin .indicador {
+    min-width: 0;
+    padding: 16px 12px;
+  }
+
+  .pagina--admin .indicador strong {
+    font-size: 30px;
+  }
+
+  .pagina--admin .indicador span {
+    font-size: 12px;
+  }
+}
+
+/* Mantém o título Tipo e a lista lado a lado */
+.pagina--admin nav.filtros:not(.paginacao) label[for="filtro-tipo"] {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin: 0 0 0 6px !important;
+  white-space: nowrap;
+}
+
+.pagina--admin #filtro-tipo {
+  flex: 0 1 210px;
+  width: auto;
+  min-width: 0;
+}
+
+/* Ajuste do filtro no celular */
+@media (max-width: 600px) {
+  .pagina--admin nav.filtros:not(.paginacao) label[for="filtro-tipo"] {
+    margin-left: 0 !important;
+  }
+
+  .pagina--admin #filtro-tipo {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .pagina--admin nav.filtros:not(.paginacao) label[for="filtro-tipo"] {
+    flex: 0 0 auto;
+    margin: 0 !important;
+  }
+
+  .pagina--admin nav.filtros:not(.paginacao) #filtro-tipo {
+    flex: 1 0 150px;
+    width: auto;
+    min-width: 150px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Mantém o texto e a lista juntos */
+  .pagina--admin nav.filtros:not(.paginacao) {
+    column-gap: 8px;
+  }
+
+  /* Texto Tipo */
+  .pagina--admin nav.filtros:not(.paginacao) label[for="filtro-tipo"] {
+    flex: 0 0 auto;
+    margin: 0 !important;
+    white-space: nowrap;
+  }
+
+  /* Lista de tipos */
+  .pagina--admin nav.filtros:not(.paginacao) #filtro-tipo {
+    flex: 1 1 150px;
+    width: auto;
+    min-width: 150px;
+    max-width: 100%;
+  }
+}
+
+/* Agrupamento do filtro Tipo */
+.pagina--admin .filtro-tipo-grupo {
+  display: flex;
+  align-items: center;
+  flex: 1 1 230px;
+  min-width: 0;
+  gap: 10px;
+}
+
+.pagina--admin .filtro-tipo-grupo label {
+  margin: 0 !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pagina--admin .filtro-tipo-grupo #filtro-tipo {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+
+/* ==========================================
+   PAINEL - TABELA DE DENÚNCIAS
+   ========================================== */
+
+.pagina--admin .tabela-rolagem {
+  border: 1px solid #e0e9e4;
+  border-radius: 16px;
+  overflow-x: auto;
+  box-shadow: 0 6px 24px rgba(20, 60, 45, 0.06);
+}
+
+/* Tabela */
+.pagina--admin #tabela-denuncias {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Cabeçalho */
+.pagina--admin #tabela-denuncias thead {
+  background: #f0f6f3;
+}
+
+.pagina--admin #tabela-denuncias th {
+  color: #315a4c;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 16px;
+  white-space: nowrap;
+}
+
+/* Células */
+.pagina--admin #tabela-denuncias td {
+  padding: 16px;
+  font-size: 14px;
+  color: #253b32;
+  border-bottom: 1px solid #edf1ee;
+}
+
+/* Efeito de destaque */
+@media (hover: hover) {
+  .pagina--admin #tabela-denuncias tbody tr:hover {
+    background: #edf7f1;
+  }
+}
+
+/* Mantém destaque das denúncias recebidas */
+@media (hover: hover) {
+  .pagina--admin #tabela-denuncias tbody tr:has(.etiqueta--recebida):hover {
+    background: #fff0df;
+  }
+}
+
+/* Etiquetas de status */
+.pagina--admin #tabela-denuncias .etiqueta {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .pagina--admin #tabela-denuncias {
+    min-width: 620px;
+  }
+
+  .pagina--admin #tabela-denuncias th,
+  .pagina--admin #tabela-denuncias td {
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .pagina--admin .tabela-rolagem {
+    -webkit-overflow-scrolling: touch;
   }
 }
