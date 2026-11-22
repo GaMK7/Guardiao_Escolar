@@ -20,7 +20,10 @@ async function iniciar(variaveis = {}) {
 
   Object.assign(process.env, {
     DATABASE_URL: `postgresql://postgres:postgres@127.0.0.1:${socket.port}/postgres`,
-    CODIGO_SEGREDO: 'segredo-usado-so-nos-testes-com-mais-de-32-caracteres'
+    CODIGO_SEGREDO: 'segredo-usado-so-nos-testes-com-mais-de-32-caracteres',
+    // Evita que a configuração do banco local (.env/terminal do VS Code) desvie
+    // os testes de integração do PostgreSQL em memória criado acima.
+    LOCAL_DATABASE: ''
   }, variaveis);
   const app = require('../servidor/app');
   const banco = require('../servidor/banco');

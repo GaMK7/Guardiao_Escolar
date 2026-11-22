@@ -44,13 +44,30 @@ Precisa do Node.js 20.12 ou mais novo.
 
 Se ninguém mais consegue entrar (senha esquecida, administrador desativado), rode o `criar-admin` de novo com o e-mail de um administrador. Ele gera senha nova, reativa o acesso e dá perfil de administrador.
 
+## Conta compartilhada de QA
+
+Para criar uma conta geral para testers, configure QA_ADMIN_EMAIL, QA_ADMIN_NOME e QA_ADMIN_PASSWORD no ambiente de hospedagem. Guarde a senha como segredo privado, fora do Git. Habilite QA_ADMIN_SEED_ENABLED=true somente no ambiente escolhido e execute npm run criar-admin-qa manualmente com o DATABASE_URL desse ambiente.
+
+O comando cria ou atualiza a conta com perfil de administrador e encerra sessoes anteriores. Ele nao roda ao iniciar o servidor. Como o login e compartilhado, todas as alteracoes feitas por testers ficam atribuidas a essa mesma conta.
+
+## Desenvolvimento local
+
+Para rodar sem Neon ou Docker:
+
+1. Execute npm install.
+2. Mantenha LOCAL_DATABASE=pglite no .env local. O banco persistente e criado automaticamente em .local-db.
+3. Execute npm run criar-admin-qa uma vez para criar a conta local.
+4. Execute npm run dev e abra http://localhost:3000/admin/login.html.
+
+O .env local ja traz a conta QA de desenvolvimento. Ele e ignorado pelo Git; nunca copie essas credenciais para a hospedagem de producao.
+
 ## Testes
 
 ```
 npm test
 ```
 
-São 48 testes automáticos, organizados pelos requisitos do escopo: registro, validação, consulta pública, login, lista e contagem, andamento, usuários, troca de senha, segurança e HTTPS. Rodam num PostgreSQL em memória (PGlite), sem precisar do Neon nem do `.env`. Estão em [testes/](testes/).
+São 82 testes automáticos, organizados pelos requisitos do escopo: registro, validação, consulta pública, login, bloqueio de login, lista e contagem, andamento, usuários, troca de senha, segurança, limites contra robôs e HTTPS. Rodam num PostgreSQL em memória (PGlite), sem precisar do Neon nem do `.env`. Estão em [testes/](testes/).
 
 ## Produção e HTTPS (RNF01)
 
@@ -60,6 +77,8 @@ São 48 testes automáticos, organizados pelos requisitos do escopo: registro, v
   - envia HSTS, para o navegador não tentar HTTP de novo;
   - só manda o cookie de login por HTTPS.
 - Em produção, o servidor confia no primeiro proxy para saber se o pedido veio por HTTPS. Não rode com `NODE_ENV=production` sem esse proxy: todo pedido seria redirecionado.
+- O mesmo proxy informa o IP de cada visitante, usado nos limites contra robôs. Se houver **mais de um** proxy na frente do Node (por exemplo, Cloudflare na frente da hospedagem), ajuste o `trust proxy` em `servidor/app.js` para o número de proxies. Senão, todos os visitantes contam como um só e o limite trava o site para todo mundo.
+- Os limites ficam na memória de cada processo. Com várias instâncias do servidor, cada uma conta separado.
 
 ## Estrutura
 
@@ -85,9 +104,9 @@ São 48 testes automáticos, organizados pelos requisitos do escopo: registro, v
 │   ├── banco.js          conexão com o PostgreSQL
 │   ├── codigo.js         código de acompanhamento e o hash dele
 │   ├── validacao.js      validação de tudo que chega
-│   ├── autenticacao.js   sessões, exigirLogin e exigirAdministrador
+│   ├── autenticacao.js   sessões, cookie de aparelho, exigirLogin e exigirAdministrador
 │   ├── senha.js          bcrypt e senha provisória
-│   ├── limite.js         limite de tentativas de login
+│   ├── limite.js         limites contra robôs: login por conta, aparelho e origem; pedidos por origem
 │   ├── criar-admin.js    npm run criar-admin
 │   └── rotas/            denuncias, sessao, conta e usuarios
 ├── testes/               npm test
@@ -101,8 +120,8 @@ As rotas marcadas com **login** respondem `401` sem uma sessão válida. As de *
 
 | Método e rota | Acesso | O que faz |
 |---|---|---|
-| `POST /api/denuncias` | público | Registra a denúncia. `201 { protocolo, codigo }` |
-| `POST /api/denuncias/consulta` | público | Consulta pelo `{ codigo }`, que vai no corpo e nunca na URL. `200 { protocolo, tipo, status, criado_em, andamentos }` ou `404` |
+| `POST /api/denuncias` | público | Registra a denúncia. `201 { protocolo, codigo }`, ou `429` depois de 20 na mesma hora vindas da mesma origem |
+| `POST /api/denuncias/consulta` | público | Consulta pelo `{ codigo }`, que vai no corpo e nunca na URL. `200 { protocolo, tipo, status, criado_em, andamentos }`, `404`, ou `429` depois de 30 códigos errados em 15 minutos |
 | `POST /api/sessao` | público | Login com `{ email, senha }`. `201 { nome, email, perfil }`, `401` ou `429` |
 | `GET /api/sessao` | login | Quem está logado |
 | `DELETE /api/sessao` ou `GET /api/sessao/sair` | público | Sai |
@@ -131,8 +150,18 @@ O login também aceita o formulário sem JavaScript: em vez de JSON, redireciona
   - o código vai da tela de envio para a de confirmação por `sessionStorage`, nunca pela URL.
 - **Senhas (RNF02):** ficam no banco com bcrypt.
 - **Login:**
-  - depois de 5 senhas erradas, o e-mail fica bloqueado por 15 minutos;
+  - depois de 5 senhas erradas em navegadores desconhecidos, o e-mail fica bloqueado por 15 minutos;
+  - o navegador onde a pessoa já entrou com sucesso guarda um cookie de aparelho (`ge_aparelho`, 180 dias, só em `/api/sessao`). Ele tem os seus próprios 5 erros e não fica preso no bloqueio do e-mail. Assim, errar a senha da coordenação de propósito não tranca a coordenação do lado de fora. O cookie não dá acesso a nada sozinho e não contém o e-mail: é um id assinado com uma chave derivada da `CODIGO_SEGREDO`;
+  - cada tentativa conta ao chegar, antes de conferir a senha, então disparar várias ao mesmo tempo não fura o bloqueio;
+  - login certo não conta, mas não apaga os erros de antes. A senha nova gerada pelo administrador libera o e-mail na hora;
   - a mensagem de erro não revela se o e-mail existe.
+- **Limites contra robôs, por origem (IP):** respondem `429` com `Retry-After`.
+  - até 20 denúncias por hora, para ninguém encher o banco de denúncias falsas;
+  - até 30 códigos errados a cada 15 minutos na consulta, o que torna inviável adivinhar um código; consulta certa não conta;
+  - até 20 logins errados a cada 15 minutos, mesmo em e-mails diferentes; login certo não conta;
+  - os limites são folgados porque uma escola inteira pode sair para a internet por um único IP;
+  - o pedido é contado ao chegar, então disparar vários ao mesmo tempo não fura o limite;
+  - o IP não é guardado (RN02): vira um HMAC com uma chave sorteada a cada início do servidor, só em memória. IPv6 conta pelo bloco /64.
 - **Sessão:**
   - dura 8 horas, num cookie `HttpOnly` e `SameSite=Strict`, e o banco guarda só o hash do token;
   - sair, desativar o usuário ou trocar a senha encerra a sessão na hora.
@@ -159,3 +188,11 @@ O login também aceita o formulário sem JavaScript: em vez de JSON, redireciona
 | RNF01 | `servidor/app.js` (redirecionamento, HSTS) e cookie `Secure` em produção |
 | RNF03–RNF05 | `servidor/validacao.js`, consultas parametrizadas, formulário só com o necessário |
 | RNF15–RNF17 | este README, `.env.example` e `.gitignore`, códigos HTTP da tabela acima |
+
+## Acesso em celular tablet e computador
+
+O sistema deve ser aberto pelo endereço HTTP ou HTTPS do servidor Node.js. Distribuir um HTML pelo WhatsApp, abrir um endereço file:// ou content:// ou publicar somente as páginas em hospedagem estática não executa a API nem o banco. As telas, CSS, JavaScript e /api devem estar disponíveis na mesma origem, conforme a estrutura deste projeto.
+
+Para produção, publique a aplicação Node.js com PostgreSQL e um endereço HTTPS acessível aos dispositivos. O endereço 127.0.0.1 aponta para o próprio dispositivo; não permite que um tablet acesse o servidor do computador. Testar por Wi-Fi exige um endereço da rede local, servidor acessível por essa rede e configuração apropriada de acesso. Nenhuma publicação é feita automaticamente ao baixar este repositório.
+
+A suíte inclui testes dos arquivos públicos, tipos de conteúdo, login sem JavaScript, erros da API e tratamento de resposta inválida no cliente. Alterar o User-Agent em um teste de API não substitui a validação em navegadores e aparelhos reais.

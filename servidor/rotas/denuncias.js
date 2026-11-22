@@ -3,6 +3,7 @@ const express = require('express');
 const banco = require('../banco');
 const { exigirLogin } = require('../autenticacao');
 const { gerarCodigo, hashCodigo } = require('../codigo');
+const { chaveDaOrigem, criarLimite, responderLimite } = require('../limite');
 const {
   TIPOS, STATUS, validarDenuncia, validarConsulta, validarAndamento, validarFiltros, responderInvalido
 } = require('../validacao');
@@ -11,13 +12,24 @@ const rotas = express.Router();
 const TENTATIVAS_CODIGO = 3;
 const PROTOCOLO = /^\d{4}-\d{4,}$/;
 const POR_PAGINA = 50;
+const HORA_MS = 60 * 60 * 1000;
+
+/* Limites por origem (IP), contra robôs. São folgados porque uma escola inteira
+   pode sair para a internet por um único IP.
+   - Registro: 20 denúncias por hora. Evita encher o banco de denúncias falsas.
+   - Consulta: 30 códigos errados a cada 15 minutos. Consulta certa não conta.
+     Com isso, adivinhar um código de 8 caracteres por tentativa deixa de ser viável. */
+const LIMITE_REGISTRO = criarLimite({ maximo: 20, janelaMs: HORA_MS });
+const LIMITE_CONSULTA = criarLimite({ maximo: 30, janelaMs: HORA_MS / 4 });
 
 /* POST /api/denuncias — registro público, sem login (RF01).
    Status "recebida" (RN05) e protocolo (RF08) são definidos pelo banco.
-   Resposta: 201 { protocolo, codigo } ou 400 { erro, campos }. */
+   Resposta: 201 { protocolo, codigo }, 400 { erro, campos } ou 429. */
 rotas.post('/', async function (req, res) {
   const { dados, erros } = validarDenuncia(req.body);
   if (erros) return responderInvalido(res, erros);
+  const espera = LIMITE_REGISTRO.reservar(chaveDaOrigem(req));
+  if (espera) return responderLimite(res, espera, 'Muitas denúncias foram enviadas desta conexão em pouco tempo. Tente de novo mais tarde.');
 
   for (let tentativa = 1; tentativa <= TENTATIVAS_CODIGO; tentativa++) {
     const codigo = gerarCodigo();
@@ -39,15 +51,19 @@ rotas.post('/', async function (req, res) {
 /* POST /api/denuncias/consulta — consulta pública pelo código (RF11, RF12).
    O código vai no corpo, não na URL, para não ficar no histórico do navegador nem em logs.
    Não devolve relato, local, vínculo nem autor das providências (RF13).
-   Resposta: 200 { protocolo, tipo, status, criado_em, andamentos }, 400 ou 404. */
+   Resposta: 200 { protocolo, tipo, status, criado_em, andamentos }, 400, 404 ou 429. */
 rotas.post('/consulta', async function (req, res) {
   const { dados, erros } = validarConsulta(req.body);
   if (erros) return responderInvalido(res, erros);
+  const origem = chaveDaOrigem(req);
+  const espera = LIMITE_CONSULTA.reservar(origem);
+  if (espera) return responderLimite(res, espera, 'Muitos códigos errados em pouco tempo. Espere alguns minutos e tente de novo.');
 
   const { rows } = await banco.query('SELECT * FROM guardiao_mer.consultar_por_token($1)', [hashCodigo(dados.codigo)]);
   if (!rows.length) {
     return res.status(404).json({ erro: 'Não encontramos nenhuma denúncia com esse código. Confira se digitou certo.' });
   }
+  LIMITE_CONSULTA.devolver(origem);
 
   const denuncia = rows[0];
   res.json({
@@ -147,6 +163,9 @@ rotas.post('/:protocolo/andamentos', exigirLogin, async function (req, res, next
     res.status(201).json(rows[0]);
   } catch (erro) {
     if (erro.code === '55000') {
+      if (String(erro.message).includes('DUPLICATE_STATUS')) {
+        return res.status(409).json({ erro: 'Este já é o status atual. Escolha outro status para registrar uma mudança.' });
+      }
       return res.status(409).json({ erro: 'Essa mudança de status não é permitida. O caminho é Recebida → Em análise → Concluída ou Arquivada.' });
     }
     if (erro.code === '42501') return res.status(403).json({ erro: 'Seu acesso está desativado.' });

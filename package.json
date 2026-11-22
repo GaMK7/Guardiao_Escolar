@@ -8,6 +8,7 @@
     "start": "node servidor/index.js",
     "dev": "node --watch servidor/index.js",
     "criar-admin": "node servidor/criar-admin.js",
+    "criar-admin-qa": "node servidor/criar-admin-qa.js",
     "test": "node --test"
   },
   "engines": {
