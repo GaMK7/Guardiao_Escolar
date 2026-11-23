@@ -2279,3 +2279,236 @@ body.pagina-inicio::after {
     font-size: 13px;
   }
 }
+
+/* ==========================================
+   LOGIN ADMINISTRATIVO - ORGANIZAÇÃO
+   ========================================== */
+
+/* Formulário centralizado e compacto */
+#form-login {
+  width: 100%;
+  max-width: 460px;
+  margin: 30px auto 0;
+}
+
+/* Espaçamento dos campos */
+#form-login .campo {
+  margin-bottom: 20px;
+}
+
+/* Rótulos */
+#form-login .campo label {
+  display: block;
+  margin-bottom: 8px;
+  color: #29493c;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+/* Campos de login */
+#form-login input {
+  width: 100%;
+  min-height: 52px;
+  font-size: 16px;
+  border-radius: 12px;
+}
+
+/* Botão */
+#form-login .botao {
+  min-height: 54px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Ajustes para celular */
+@media (max-width: 600px) {
+  #form-login {
+    margin-top: 22px;
+  }
+
+  #form-login .campo {
+    margin-bottom: 18px;
+  }
+}
+
+/* ==========================================
+   LOGIN - CARTÃO BRANCO CENTRALIZADO
+   ========================================== */
+
+/* Reduz apenas o cartão da tela de login */
+body:has(#form-login) .pagina {
+  width: min(calc(100% - 32px), 620px);
+  max-width: 620px;
+  margin: 40px auto;
+  padding: 32px 36px;
+}
+
+/* Mantém o formulário centralizado */
+#form-login {
+  max-width: 460px;
+  margin: 28px auto 0;
+}
+
+/* Ajustes para celular */
+@media (max-width: 600px) {
+  body:has(#form-login) .pagina {
+    width: calc(100% - 20px);
+    margin: 16px auto;
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  #form-login {
+    width: 100%;
+    margin-top: 22px;
+  }
+}
+
+/* LOGIN - MOSTRAR/OCULTAR SENHA */
+
+#form-login .campo-senha {
+  position: relative;
+}
+
+#form-login .campo-senha input {
+  padding-right: 58px;
+}
+
+#form-login .alternar-senha {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #527568;
+  cursor: pointer;
+}
+
+#form-login .alternar-senha:hover {
+  background: #e8f2ed;
+  color: #1f5d50;
+}
+
+#form-login .alternar-senha:focus-visible {
+  outline: 2px solid #1f5d50;
+  outline-offset: 2px;
+}
+
+/* ==========================================
+   LOGIN - BOTÃO ENTRAR
+   ========================================== */
+
+#form-login button[type="submit"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  background: #1f5d50;
+  color: #ffffff;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+#form-login button[type="submit"] svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  #form-login button[type="submit"]:hover {
+    background: #17493e;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(31, 93, 80, 0.24);
+  }
+}
+
+#form-login button[type="submit"]:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #form-login button[type="submit"] {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   LOGIN - RESPONSIVIDADE FINAL
+   ========================================== */
+
+@media (max-width: 600px) {
+  /* Cartão branco */
+  body:has(#form-login) .pagina {
+    width: calc(100% - 20px);
+    max-width: 100%;
+    margin: 12px auto;
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+
+  /* Título */
+  body:has(#form-login) h1 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  /* Subtítulo */
+  body:has(#form-login) .subtitulo {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  /* Formulário */
+  #form-login {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 20px;
+  }
+
+  /* Campos */
+  #form-login input {
+    width: 100%;
+    min-height: 52px;
+    font-size: 16px;
+  }
+
+  /* Botão de mostrar senha */
+  #form-login .alternar-senha {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Botão Entrar */
+  #form-login button[type="submit"] {
+    width: 100%;
+    min-height: 56px;
+  }
+
+  /* Textos auxiliares */
+  body:has(#form-login) .link-discreto {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
