@@ -2512,3 +2512,336 @@ body:has(#form-login) .pagina {
     line-height: 1.6;
   }
 }
+
+/* ==========================================
+   DETALHES DA DENÚNCIA - CABEÇALHO
+   ========================================== */
+
+/* Protocolo em destaque */
+#detalhe-titulo {
+  color: #1f5d50;
+  font-size: clamp(26px, 4vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 18px;
+  overflow-wrap: anywhere;
+}
+
+/* Área com status e informações */
+#detalhe .cabecalho-caso {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 18px 20px;
+  margin-bottom: 28px;
+  background: #f5faf7;
+  border: 1px solid #dce9e3;
+  border-radius: 16px;
+}
+
+/* Etiquetas */
+#detalhe .cabecalho-caso .etiqueta {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Data e informações do caso */
+#detalhe .cabecalho-caso .meta {
+  color: #587064;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Adaptação para celular */
+@media (max-width: 600px) {
+  #detalhe-titulo {
+    font-size: 26px;
+    margin-bottom: 14px;
+  }
+
+  #detalhe .cabecalho-caso {
+    padding: 14px;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+
+  #detalhe .cabecalho-caso .meta {
+    flex-basis: 100%;
+    font-size: 13px;
+  }
+}
+
+/* ==========================================
+   DETALHES DA DENÚNCIA - RELATO
+   ========================================== */
+
+/* Caixa do relato */
+#detalhe .relato {
+  padding: 22px 24px;
+  margin-top: 14px;
+  margin-bottom: 26px;
+
+  background: #f8fbf9;
+  border: 1px solid #dce9e3;
+  border-left: 4px solid #1f5d50;
+  border-radius: 12px;
+
+  color: #2d4539;
+  font-size: 15px;
+  line-height: 1.8;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Título do relato */
+#detalhe h2 {
+  color: #29493c;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+/* Adaptação para celular */
+@media (max-width: 600px) {
+  #detalhe .relato {
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 22px;
+  }
+
+  #detalhe h2 {
+    font-size: 17px;
+  }
+}
+
+/* ==========================================
+   DETALHES - HISTÓRICO ADMINISTRATIVO
+   ========================================== */
+
+/* Linha do tempo */
+#detalhe-historico {
+  margin-top: 20px;
+  padding-left: 6px;
+}
+
+/* Cada atualização */
+#detalhe-historico li {
+  position: relative;
+  margin-left: 12px;
+  padding: 0 0 28px 28px;
+  border-left: 2px solid #c9ded3;
+}
+
+/* Último registro */
+#detalhe-historico li:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+
+/* Marcador circular */
+#detalhe-historico li::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: -9px;
+
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border-radius: 50%;
+
+  background: #1f5d50;
+  border: 3px solid #e4f3eb;
+}
+
+/* Etapas pendentes */
+#detalhe-historico li.pendente {
+  border-left-color: #e4eae7;
+}
+
+#detalhe-historico li.pendente::before {
+  background: #d6deda;
+  border-color: #f3f5f4;
+}
+
+/* Título do status */
+#detalhe-historico li strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #29493c;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Data e horário */
+#detalhe-historico li time {
+  display: block;
+  margin-bottom: 8px;
+  color: #73877d;
+  font-size: 13px;
+}
+
+/* Providências registradas */
+#detalhe-historico li p {
+  margin: 8px 0 0;
+  padding: 14px 16px;
+
+  background: #f4f8f5;
+  border: 1px solid #e0ebe5;
+  border-radius: 12px;
+
+  color: #496258;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* Celular */
+@media (max-width: 600px) {
+  #detalhe-historico li {
+    padding-left: 22px;
+    padding-bottom: 24px;
+  }
+
+  #detalhe-historico li strong {
+    font-size: 15px;
+  }
+
+  #detalhe-historico li p {
+    padding: 12px;
+    font-size: 13px;
+  }
+}
+
+/* ==========================================
+   DETALHES - FORMULÁRIO DE ATUALIZAÇÃO
+   ========================================== */
+
+/* Cartão do formulário */
+#detalhe .cartao:has(#form-andamento) {
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #dce9e3;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(31, 93, 80, 0.06);
+}
+
+/* Título */
+#detalhe .cartao:has(#form-andamento) h2 {
+  margin-bottom: 22px;
+  color: #1f5d50;
+  font-size: 20px;
+}
+
+/* Rótulos */
+#form-andamento .campo > label {
+  display: block;
+  margin-bottom: 8px;
+  color: #29493c;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Campos */
+#form-andamento select,
+#form-andamento textarea {
+  width: 100%;
+  min-width: 0;
+  background: #fbfefc;
+  border: 1px solid #cfe0d8;
+  border-radius: 12px;
+  padding: 13px 14px;
+  font-size: 15px;
+  color: #253b32;
+}
+
+/* Campo de providência */
+#form-andamento textarea {
+  min-height: 150px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+/* Destaque ao selecionar um campo */
+#form-andamento select:focus,
+#form-andamento textarea:focus {
+  outline: none;
+  border-color: #1f5d50;
+  box-shadow: 0 0 0 4px rgba(31, 93, 80, 0.1);
+}
+
+/* Texto de orientação */
+#form-andamento .ajuda {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Botão Salvar */
+#form-andamento button[type="submit"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  border-radius: 12px;
+  background: #1f5d50;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Celular */
+@media (max-width: 600px) {
+  #detalhe .cartao:has(#form-andamento) {
+    padding: 18px 14px;
+  }
+
+  #form-andamento select,
+  #form-andamento textarea {
+    font-size: 16px;
+  }
+
+  #form-andamento button[type="submit"] {
+    min-height: 56px;
+  }
+}
+
+#detalhe .colunas-admin > section:last-child > .aviso strong {
+  display: inline;
+  margin: 0;
+}
+
+/* ==========================================
+   DETALHES - ÍCONE DO BOTÃO SALVAR
+   ========================================== */
+
+#form-andamento button[type="submit"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#form-andamento button[type="submit"] svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Efeito ao passar o mouse */
+@media (hover: hover) {
+  #form-andamento button[type="submit"]:hover {
+    background: #17493e;
+    transform: translateY(-2px);
+  }
+}
+
+/* Respeita preferência por movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  #form-andamento button[type="submit"] {
+    transition: none;
+  }
+}
