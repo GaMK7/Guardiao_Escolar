@@ -2146,3 +2146,136 @@ body.pagina-inicio::after {
     margin-bottom: 18px;
   }
 }
+
+/* ==========================================
+   CONSULTA - CÓDIGO DE ACOMPANHAMENTO
+   ========================================== */
+
+#form-consulta {
+  max-width: 520px;
+  margin: 28px auto;
+}
+
+/* Título do campo */
+#form-consulta label[for="codigo"] {
+  display: block;
+  text-align: center;
+  color: #29493c;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* Campo do código */
+#form-consulta #codigo {
+  width: 100%;
+  min-height: 68px;
+  padding: 14px;
+  background: #f8fcf9;
+  border: 2px solid #c7ded1;
+  border-radius: 16px;
+  color: #1f5d50;
+  font-size: 26px !important;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Destaque ao clicar */
+#form-consulta #codigo:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #1f5d50;
+  box-shadow: 0 0 0 4px rgba(31, 93, 80, 0.12);
+}
+
+/* Celular */
+@media (max-width: 600px) {
+  #form-consulta {
+    margin: 22px auto;
+  }
+
+  #form-consulta #codigo {
+    min-height: 60px;
+    font-size: 22px !important;
+    letter-spacing: 0.12em;
+  }
+}
+
+/* ==========================================
+   CONSULTA - BOTÃO VER ANDAMENTO
+   ========================================== */
+
+#form-consulta button[type="submit"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+#form-consulta button[type="submit"] svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  #form-consulta button[type="submit"] {
+    min-height: 56px;
+    width: 100%;
+  }
+}
+
+/* ==========================================
+   CONSULTA - AVISO SOBRE O CÓDIGO
+   ========================================== */
+
+.aviso-codigo {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 26px;
+  padding: 18px 20px;
+  background: #eef7f1;
+  border: 1px solid #d3e7d9;
+  border-radius: 14px;
+  color: #315848;
+}
+
+.aviso-codigo > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #1f5d50;
+}
+
+.aviso-codigo strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.aviso-codigo p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .aviso-codigo {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .aviso-codigo p {
+    font-size: 13px;
+  }
+}
