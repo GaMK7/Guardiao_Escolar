@@ -1741,3 +1741,214 @@ body.pagina-inicio::after {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* ==========================================
+   FORMULÁRIO DE DENÚNCIA - ORGANIZAÇÃO
+   ========================================== */
+
+/* Espaçamento entre os blocos do formulário */
+#form-denuncia {
+  margin-top: 28px;
+}
+
+/* Seção de categorias */
+#form-denuncia .grupo {
+  background: #f8fbf9;
+  border: 1px solid #e0ebe5;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 22px;
+}
+
+/* Título da seção */
+#form-denuncia .grupo legend {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f5d50;
+  padding: 0 8px;
+}
+
+/* Espaçamento entre campos */
+#form-denuncia .campo {
+  margin-bottom: 24px;
+}
+
+/* Rótulos dos campos */
+#form-denuncia .campo > label {
+  color: #29493c;
+  font-size: 14px;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+
+/* Campos de texto e seleção */
+#form-denuncia select,
+#form-denuncia input[type="date"] {
+  border-radius: 12px;
+  min-height: 50px;
+}
+
+#form-denuncia textarea {
+  border-radius: 12px;
+  min-height: 110px;
+}
+
+/* Adaptação para celulares */
+@media (max-width: 600px) {
+  #form-denuncia {
+    margin-top: 20px;
+  }
+
+  #form-denuncia .grupo {
+    padding: 16px 12px;
+  }
+
+  #form-denuncia .grupo legend {
+    font-size: 15px;
+  }
+
+  #form-denuncia .campo {
+    margin-bottom: 20px;
+  }
+}
+
+/* ==========================================
+   FORMULÁRIO - BOTÃO DE ENVIO
+   ========================================== */
+
+#form-denuncia button[type="submit"] {
+  min-height: 54px;
+  border-radius: 14px;
+  background: #1f5d50;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 6px 18px rgba(31, 93, 80, 0.18);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Efeito apenas para dispositivos com mouse */
+@media (hover: hover) {
+  #form-denuncia button[type="submit"]:hover {
+    background: #17493e;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(31, 93, 80, 0.24);
+  }
+}
+
+/* Resposta visual ao toque */
+#form-denuncia button[type="submit"]:active {
+  transform: scale(0.99);
+}
+
+/* Destaque ao navegar pelo teclado */
+#form-denuncia button[type="submit"]:focus-visible {
+  outline: 3px solid #1f5d50;
+  outline-offset: 4px;
+}
+
+/* Estado desabilitado */
+#form-denuncia button[type="submit"]:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Respeita preferência por movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  #form-denuncia button[type="submit"] {
+    transition: none;
+  }
+}
+
+/* Alinhamento do ícone no botão */
+#form-denuncia button[type="submit"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#form-denuncia button[type="submit"] svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* FORMULÁRIO - MENSAGENS DE ERRO */
+
+#form-denuncia .erro:not(:empty) {
+  display: block;
+  padding: 9px 12px;
+  margin-top: 8px;
+  background: #fff1ed;
+  color: #9b3521;
+  border-left: 3px solid #d65b3e;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Erro geral no envio */
+#form-denuncia #erro-envio:not(:empty) {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 10px;
+}
+
+/* Destaque para campos inválidos */
+#form-denuncia input[aria-invalid="true"],
+#form-denuncia select[aria-invalid="true"],
+#form-denuncia textarea[aria-invalid="true"] {
+  border-color: #d65b3e;
+  background: #fffaf8;
+}
+
+/* ==========================================
+   FORMULÁRIO - RESPONSIVIDADE MOBILE
+   ========================================== */
+
+@media (max-width: 600px) {
+  /* Campos de data e local empilhados */
+  #form-denuncia .duas-colunas {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  /* Campos confortáveis para toque */
+  #form-denuncia input[type="date"],
+  #form-denuncia select,
+  #form-denuncia textarea {
+    width: 100%;
+    min-width: 0;
+    font-size: 16px;
+    padding: 14px;
+  }
+
+  /* Mais espaço para escrever o relato */
+  #form-denuncia textarea {
+    min-height: 180px;
+    line-height: 1.6;
+  }
+
+  /* Textos mais legíveis */
+  #form-denuncia .campo > label {
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  /* Espaçamento dos campos */
+  #form-denuncia .campo {
+    margin-bottom: 22px;
+  }
+
+  /* Botão de envio */
+  #form-denuncia button[type="submit"] {
+    width: 100%;
+    min-height: 56px;
+  }
+}
