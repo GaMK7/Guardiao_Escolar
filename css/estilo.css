@@ -1952,3 +1952,197 @@ body.pagina-inicio::after {
     min-height: 56px;
   }
 }
+
+/* ==========================================
+   ACOMPANHAMENTO - STATUS ATUAL
+   ========================================== */
+
+.status-atual {
+  margin-top: 26px;
+  padding: 20px 22px;
+  background: #f6faf7;
+  border: 1px solid #dce9e3;
+  border-radius: 16px;
+}
+
+.status-atual__titulo {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #526b60;
+}
+
+.status-atual #andamento-status {
+  margin: 0;
+}
+
+.status-atual .etiqueta {
+  font-size: 15px;
+  padding: 9px 16px;
+}
+
+.status-atual__ajuda {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #5c706c;
+}
+
+/* Celular */
+@media (max-width: 600px) {
+  .status-atual {
+    padding: 16px;
+    margin-top: 20px;
+  }
+
+  .status-atual .etiqueta {
+    font-size: 14px;
+  }
+}
+
+/* ==========================================
+   ACOMPANHAMENTO - LINHA DO TEMPO
+   ========================================== */
+
+/* Espaçamento geral */
+#andamento-historico {
+  margin-top: 22px;
+  padding-left: 4px;
+}
+
+/* Cada etapa */
+#andamento-historico li {
+  position: relative;
+  margin-left: 12px;
+  padding: 0 0 30px 30px;
+  border-left: 2px solid #c9ded3;
+}
+
+/* Última etapa */
+#andamento-historico li:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+
+/* Círculos da linha do tempo */
+#andamento-historico li::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: -9px;
+  width: 16px;
+  height: 16px;
+  background: #1f5d50;
+  border: 3px solid #e4f3eb;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+/* Etapas pendentes */
+#andamento-historico li.pendente {
+  border-left-color: #e4eae7;
+}
+
+#andamento-historico li.pendente::before {
+  background: #d6deda;
+  border-color: #f3f5f4;
+}
+
+/* Título da etapa */
+#andamento-historico li strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #213e32;
+  margin-bottom: 4px;
+}
+
+#andamento-historico li.pendente strong {
+  color: #8a9a96;
+}
+
+/* Data e horário */
+#andamento-historico li time {
+  display: block;
+  color: #73877d;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+/* Texto das providências */
+#andamento-historico li p {
+  margin: 8px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f4f8f5;
+  color: #496258;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* Etapas pendentes sem caixa de providência */
+#andamento-historico li.pendente p {
+  padding: 0;
+  background: transparent;
+  color: #8a9a96;
+}
+
+/* Ajustes para celular */
+@media (max-width: 600px) {
+  #andamento-historico li {
+    padding-left: 22px;
+    padding-bottom: 26px;
+  }
+
+  #andamento-historico li strong {
+    font-size: 15px;
+  }
+
+  #andamento-historico li p {
+    padding: 12px;
+    font-size: 13px;
+  }
+}
+
+/* ==========================================
+   ACOMPANHAMENTO - PROTOCOLO E RESUMO
+   ========================================== */
+
+/* Número do protocolo */
+#andamento-protocolo {
+  display: block;
+  margin: 12px 0 10px;
+  color: #1f5d50;
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* Resumo da denúncia */
+#andamento-resumo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 24px;
+  color: #5c706c;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Ajustes para celular */
+@media (max-width: 600px) {
+  #andamento-protocolo {
+    font-size: clamp(23px, 7vw, 30px);
+    margin-top: 8px;
+  }
+
+  #andamento-resumo {
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+}
